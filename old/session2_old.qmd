@@ -1,0 +1,1150 @@
+---
+title: "Session 2 — Construction of the finite element method"
+subtitle: "Triangular meshes, local shape functions, assembly, and numerical integration"
+---
+
+## Learning objectives
+
+By the end of this session, students should be able to:
+
+- define a \(P_1\) finite-element approximation space on a triangular mesh;
+- construct linear nodal shape functions directly on a physical triangle;
+- derive the elemental stiffness matrix and elemental load vector;
+- explain how local element contributions are assembled into a global linear system;
+- relate local support to matrix sparsity;
+- impose homogeneous Dirichlet boundary conditions at nodal degrees of freedom;
+- understand the practical role of the reference element and numerical quadrature.
+
+## Schedule
+
+| Time | Topic |
+|---:|---|
+| 0–15 min | Triangular mesh and definition of \(V_h\) |
+| 15–35 min | \(P_1\) shape functions on one physical triangle |
+| 35–50 min | Elemental stiffness matrix and load vector |
+| 50–60 min | Global basis functions and assembly |
+| 60–70 min | Local support, sparsity, and Dirichlet conditions |
+| 70–90 min | Technical block: reference element, mapping, and quadrature |
+
+---
+
+# Triangular mesh and finite-element space
+
+Let
+
+$$
+\Omega \subset \mathbb{R}^2
+$$
+
+be approximated by a triangulation
+
+$$
+\mathcal{T}_h
+=
+\{T_1,T_2,\ldots,T_{N_e}\}.
+$$
+
+The domain is decomposed into non-overlapping triangles:
+
+$$
+\Omega_h
+=
+\bigcup_{T\in\mathcal{T}_h} T.
+$$
+
+For linear triangular finite elements, we define
+
+$$
+\boxed{
+V_h
+=
+\left\{
+v_h\in C^0(\Omega_h)
+:
+v_h|_T\in\mathbb{P}_1(T)
+\quad
+\forall T\in\mathcal{T}_h
+\right\}.
+}
+$$
+
+Thus a finite-element function is:
+
+- continuous over the whole mesh;
+- affine on each individual triangle.
+
+For homogeneous Dirichlet boundary conditions,
+
+$$
+u=0
+\qquad\text{on }\partial\Omega,
+$$
+
+the approximation space is restricted to functions satisfying
+
+$$
+v_h=0
+\qquad\text{on }\partial\Omega.
+$$
+
+The finite-element approximation is written
+
+$$
+u_h(x,y)
+=
+\sum_{i=1}^{N_h}
+U_i\phi_i(x,y),
+$$
+
+where the global nodal functions satisfy
+
+$$
+\phi_i(\mathbf{x}_j)
+=
+\delta_{ij}.
+$$
+
+Hence
+
+$$
+\boxed{
+U_i=u_h(\mathbf{x}_i).
+}
+$$
+
+The coefficients of the finite-element approximation are directly the nodal values of the approximate solution.
+
+---
+
+# \(P_1\) shape functions on one physical triangle
+
+Consider one triangle
+
+$$
+T
+=
+\operatorname{conv}
+\{
+\mathbf{x}_1,\mathbf{x}_2,\mathbf{x}_3
+\},
+$$
+
+with
+
+$$
+\mathbf{x}_i=(x_i,y_i).
+$$
+
+Inside \(T\), the finite-element solution is affine:
+
+$$
+u_h|_T(x,y)
+=
+U_1N_1(x,y)
++
+U_2N_2(x,y)
++
+U_3N_3(x,y).
+$$
+
+The local shape functions are affine functions
+
+$$
+N_i(x,y)
+=
+a_i+b_i x+c_i y,
+$$
+
+defined by the nodal interpolation conditions
+
+$$
+\boxed{
+N_i(\mathbf{x}_j)=\delta_{ij}.
+}
+$$
+
+Thus
+
+$$
+N_1(\mathbf{x}_1)=1,
+\qquad
+N_1(\mathbf{x}_2)=N_1(\mathbf{x}_3)=0,
+$$
+
+and similarly for \(N_2\) and \(N_3\).
+
+The local approximation therefore satisfies
+
+$$
+u_h(\mathbf{x}_i)=U_i.
+$$
+
+---
+
+## Explicit construction
+
+For each shape function,
+
+$$
+N_i(x,y)=a_i+b_i x+c_i y,
+$$
+
+the three coefficients are obtained by solving a \(3\times3\) system.
+
+For example, for \(N_1\),
+
+$$
+\begin{pmatrix}
+1 & x_1 & y_1\\
+1 & x_2 & y_2\\
+1 & x_3 & y_3
+\end{pmatrix}
+\begin{pmatrix}
+a_1\\
+b_1\\
+c_1
+\end{pmatrix}
+=
+\begin{pmatrix}
+1\\
+0\\
+0
+\end{pmatrix}.
+$$
+
+Likewise,
+
+$$
+\begin{pmatrix}
+1 & x_1 & y_1\\
+1 & x_2 & y_2\\
+1 & x_3 & y_3
+\end{pmatrix}
+\begin{pmatrix}
+a_2\\
+b_2\\
+c_2
+\end{pmatrix}
+=
+\begin{pmatrix}
+0\\
+1\\
+0
+\end{pmatrix},
+$$
+
+and
+
+$$
+\begin{pmatrix}
+1 & x_1 & y_1\\
+1 & x_2 & y_2\\
+1 & x_3 & y_3
+\end{pmatrix}
+\begin{pmatrix}
+a_3\\
+b_3\\
+c_3
+\end{pmatrix}
+=
+\begin{pmatrix}
+0\\
+0\\
+1
+\end{pmatrix}.
+$$
+
+Because the functions are affine,
+
+$$
+\boxed{
+\nabla N_i
+=
+\begin{pmatrix}
+b_i\\
+c_i
+\end{pmatrix}
+}
+$$
+
+is constant over the triangle.
+
+This property makes the \(P_1\) Poisson element particularly simple.
+
+---
+
+# Elemental stiffness matrix
+
+For the Poisson problem,
+
+$$
+-\Delta u=f,
+$$
+
+the weak form involves
+
+$$
+a(u,v)
+=
+\int_\Omega
+\nabla u\cdot\nabla v\,d\Omega.
+$$
+
+On one triangle \(T\), the elemental stiffness matrix is defined by
+
+$$
+\boxed{
+K^{(T)}_{ij}
+=
+\int_T
+\nabla N_i\cdot\nabla N_j\,d\Omega.
+}
+$$
+
+Since the gradients of the \(P_1\) shape functions are constant on \(T\),
+
+$$
+\nabla N_i\cdot\nabla N_j
+$$
+
+is also constant.
+
+Therefore,
+
+$$
+\boxed{
+K^{(T)}_{ij}
+=
+|T|
+\,
+\nabla N_i\cdot\nabla N_j.
+}
+$$
+
+The full elemental matrix is
+
+$$
+K^{(T)}
+=
+\begin{pmatrix}
+K^{(T)}_{11} & K^{(T)}_{12} & K^{(T)}_{13}\\
+K^{(T)}_{21} & K^{(T)}_{22} & K^{(T)}_{23}\\
+K^{(T)}_{31} & K^{(T)}_{32} & K^{(T)}_{33}
+\end{pmatrix}.
+$$
+
+---
+
+# Elemental load vector
+
+The right-hand side of the weak formulation is
+
+$$
+\ell(v)
+=
+\int_\Omega fv\,d\Omega.
+$$
+
+On one triangle,
+
+$$
+\boxed{
+F_i^{(T)}
+=
+\int_T
+fN_i\,d\Omega.
+}
+$$
+
+Thus
+
+$$
+F^{(T)}
+=
+\begin{pmatrix}
+F_1^{(T)}\\
+F_2^{(T)}\\
+F_3^{(T)}
+\end{pmatrix}.
+$$
+
+For constant \(f\), one may use
+
+$$
+\int_T N_i\,d\Omega
+=
+\frac{|T|}{3},
+$$
+
+so that
+
+$$
+\boxed{
+F^{(T)}
+=
+\frac{f|T|}{3}
+\begin{pmatrix}
+1\\
+1\\
+1
+\end{pmatrix}.
+}
+$$
+
+For a more general \(f(x,y)\), the integral generally needs to be evaluated numerically.
+
+> **FEM localizes both approximation and integration.**
+
+---
+
+# From local to global basis functions
+
+A global nodal basis function \(\phi_i\) is constructed by joining the local shape functions associated with node \(i\) over all triangles that contain that node.
+
+Thus,
+
+$$
+\phi_i(\mathbf{x}_j)=\delta_{ij},
+$$
+
+and
+
+$$
+\operatorname{supp}\phi_i
+=
+\bigcup
+\left\{
+T\in\mathcal{T}_h:
+\mathbf{x}_i\in T
+\right\}.
+$$
+
+The support of \(\phi_i\) is therefore local.
+
+The global approximation is
+
+$$
+u_h
+=
+\sum_{i=1}^{N_h}
+U_i\phi_i.
+$$
+
+
+```{python}
+#| label: fig-gmsh-mesh
+#| fig-cap: "Triangular mesh of a square domain containing a circular hole."
+#| echo: true
+
+import gmsh
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.tri as mtri
+
+gmsh.initialize()
+gmsh.model.add("square_with_hole")
+
+# Geometry
+L = 1.0
+R = 0.18
+
+# Square
+square = gmsh.model.occ.addRectangle(0, 0, 0, L, L)
+
+# Circular hole
+disk = gmsh.model.occ.addDisk(0.5, 0.5, 0, R, R)
+
+# Boolean subtraction
+domain, _ = gmsh.model.occ.cut(
+    [(2, square)],
+    [(2, disk)]
+)
+
+gmsh.model.occ.synchronize()
+
+# Typical mesh size
+gmsh.option.setNumber("Mesh.MeshSizeMin", 0.1)
+gmsh.option.setNumber("Mesh.MeshSizeMax", 0.2)
+
+# Generate 2D triangular mesh
+gmsh.model.mesh.generate(2)
+
+# ----------------------------------
+# Extract nodes
+# ----------------------------------
+
+node_tags, node_coords, _ = gmsh.model.mesh.getNodes()
+
+coords = node_coords.reshape(-1, 3)
+
+x = coords[:, 0]
+y = coords[:, 1]
+
+# Gmsh node tags are not necessarily 0,1,2,...
+tag_to_index = {
+    tag: i for i, tag in enumerate(node_tags)
+}
+
+# ----------------------------------
+# Extract triangular elements
+# ----------------------------------
+
+element_types, element_tags, element_nodes = \
+    gmsh.model.mesh.getElements(dim=2)
+
+triangles = None
+
+for element_type, nodes in zip(element_types, element_nodes):
+
+    # 3-node linear triangle
+    if element_type == 2:
+
+        nodes = nodes.reshape(-1, 3)
+
+        triangles = np.array([
+            [tag_to_index[tag] for tag in tri]
+            for tri in nodes
+        ])
+
+        break
+
+gmsh.finalize()
+
+# ----------------------------------
+# Plot using Matplotlib
+# ----------------------------------
+
+mesh = mtri.Triangulation(x, y, triangles)
+
+plt.figure(figsize=(6, 6))
+
+plt.triplot(mesh, linewidth=0.7)
+plt.plot(x, y, ".", markersize=2)
+
+plt.xlabel("$x$")
+plt.ylabel("$y$")
+plt.gca().set_aspect("equal")
+
+plt.show()
+```
+
+
+```{python}
+# -------------------------------------------------
+# Choose one interior node
+# -------------------------------------------------
+
+# Select the node closest to this point
+target_point = np.array([0.25, 0.50])
+
+i = np.argmin(
+    (x - target_point[0])**2
+    +
+    (y - target_point[1])**2
+)
+
+# Global nodal basis function:
+# phi_i = 1 at node i and 0 at every other node
+
+phi = np.zeros(len(x))
+phi[i] = 1.0
+
+# -------------------------------------------------
+# Plot mesh and basis function
+# -------------------------------------------------
+
+fig = plt.figure(figsize=(9, 6))
+
+ax = fig.add_subplot(111, projection="3d")
+
+ax.plot_trisurf(
+    mesh,
+    phi,
+    edgecolor="black",
+    linewidth=0.7,
+    alpha=0.9
+)
+
+# Highlight selected node
+ax.scatter(
+    [x[i]],
+    [y[i]],
+    [1],
+    s=60
+)
+
+ax.set_xlabel("$x$")
+ax.set_ylabel("$y$")
+ax.set_zlabel(r"$\phi_i$")
+
+ax.set_title("Global nodal basis function")
+
+plt.show()
+```
+
+
+
+---
+
+# Assembly of the global system
+
+Suppose the local nodes
+
+$$
+1,\qquad 2,\qquad 3
+$$
+
+of one triangle correspond to the global nodes
+
+$$
+5,\qquad 12,\qquad 8.
+$$
+
+Then the elemental stiffness matrix is assembled by adding its entries to the corresponding entries of the global matrix:
+
+$$
+\begin{pmatrix}
+K_{5,5} & K_{5,12} & K_{5,8}\\
+K_{12,5} & K_{12,12} & K_{12,8}\\
+K_{8,5} & K_{8,12} & K_{8,8}
+\end{pmatrix}
+\; += \;
+\begin{pmatrix}
+K^{(T)}_{11} & K^{(T)}_{12} & K^{(T)}_{13}\\
+K^{(T)}_{21} & K^{(T)}_{22} & K^{(T)}_{23}\\
+K^{(T)}_{31} & K^{(T)}_{32} & K^{(T)}_{33}
+\end{pmatrix}.
+$$
+
+Similarly,
+
+$$
+\begin{pmatrix}
+F_5\\
+F_{12}\\
+F_8
+\end{pmatrix}
+\; += \;
+\begin{pmatrix}
+F^{(T)}_1\\
+F^{(T)}_2\\
+F^{(T)}_3
+\end{pmatrix}.
+$$
+
+After assembling all triangles,
+
+$$
+\boxed{KU=F.}
+$$
+
+---
+
+# Local support and sparsity
+
+The global stiffness entries are
+
+$$
+K_{ij}
+=
+\int_\Omega
+\nabla\phi_i\cdot\nabla\phi_j\,d\Omega.
+$$
+
+If two nodal basis functions do not overlap,
+
+$$
+\operatorname{supp}\phi_i
+\cap
+\operatorname{supp}\phi_j
+=
+\varnothing,
+$$
+
+then
+
+$$
+K_{ij}=0.
+$$
+
+Therefore,
+
+$$
+\boxed{
+\text{local support}
+\Longrightarrow
+\text{sparse global matrix}.
+}
+$$
+
+Only nodes that belong to at least one common element can interact directly in the stiffness matrix.
+
+---
+
+# Dirichlet boundary conditions
+
+For homogeneous Dirichlet conditions,
+
+$$
+u=0
+\qquad
+\text{on }\partial\Omega,
+$$
+
+the finite-element coefficients associated with boundary nodes are prescribed:
+
+$$
+\boxed{
+U_i=0
+\qquad
+\text{for all boundary nodes }i.
+}
+$$
+
+The remaining unknowns correspond to interior nodes.
+
+Non-homogeneous Dirichlet conditions
+
+Suppose some nodal values are prescribed by the Dirichlet condition
+
+$$
+u=g
+\qquad \text{on } \Gamma_D.
+$$
+
+We split the degrees of freedom into
+
+- \(U_f\): unknown (free) degrees of freedom,
+- \(U_D\): prescribed Dirichlet degrees of freedom.
+
+After grouping the corresponding rows and columns, the global system
+
+$$
+KU=F
+$$
+
+can be written as
+
+$$
+\begin{pmatrix}
+K_{ff} & K_{fD}\\
+K_{Df} & K_{DD}
+\end{pmatrix}
+\begin{pmatrix}
+U_f\\
+U_D
+\end{pmatrix}
+=
+\begin{pmatrix}
+F_f\\
+F_D
+\end{pmatrix}.
+$$
+
+The Dirichlet values are known:
+
+$$
+U_D=g_D.
+$$
+
+We therefore substitute them into the equations corresponding to the
+unknown degrees of freedom:
+
+$$
+K_{ff}U_f + K_{fD}g_D = F_f,
+$$
+
+or
+
+$$
+\boxed{
+K_{ff}U_f
+=
+F_f-K_{fD}g_D.
+}
+$$
+
+The unknown nodal values \(U_f\) are obtained by solving this reduced system.
+The complete solution is then reconstructed from
+
+$$
+U=
+\begin{pmatrix}
+U_f\\
+g_D
+\end{pmatrix}.
+$$
+
+---
+
+# Technical block — Why a reference element?
+
+The previous derivation was carried out directly on a physical triangle.
+
+This is sufficient to understand the finite-element method.
+
+In practical finite-element software, however, one wants a systematic way to evaluate integrals on many differently shaped elements.
+
+Instead of developing a different integration procedure on every triangle, one introduces a single standard triangle.
+
+---
+
+## Reference triangle
+
+Define the reference triangle
+
+$$
+\widehat T
+=
+\left\{
+(\xi,\eta):
+\xi\ge0,\quad
+\eta\ge0,\quad
+\xi+\eta\le1
+\right\}.
+$$
+
+Its vertices are
+
+$$
+(0,0),
+\qquad
+(1,0),
+\qquad
+(0,1).
+$$
+
+Every physical triangle \(T\) can be obtained from \(\widehat T\) through an affine transformation.
+
+---
+
+## Affine mapping
+
+Let the reference triangle be
+
+$$
+\hat T
+=
+\left\{
+(\xi,\eta):
+\xi\ge 0,\;
+\eta\ge 0,\;
+\xi+\eta\le 1
+\right\}.
+$$
+
+A physical triangle \(T\), with vertices
+\(\mathbf x_1,\mathbf x_2,\mathbf x_3\), is obtained through the affine mapping
+
+$$
+\mathbf x(\xi,\eta)
+=
+\mathbf x_1
++
+\xi(\mathbf x_2-\mathbf x_1)
++
+\eta(\mathbf x_3-\mathbf x_1).
+$$
+
+Its Jacobian is
+
+$$
+J
+=
+\frac{\partial(x,y)}{\partial(\xi,\eta)}
+=
+\begin{pmatrix}
+x_2-x_1 & x_3-x_1\\
+y_2-y_1 & y_3-y_1
+\end{pmatrix}.
+$$
+
+The area element transforms as
+
+$$
+\boxed{
+d\Omega
+=
+|\det J|\,d\xi\,d\eta.
+}
+$$
+
+Therefore,
+
+$$
+\int_T g(x,y)\,d\Omega
+=
+\int_{\hat T}
+g(\mathbf x(\xi,\eta))
+|\det J|
+\,d\xi\,d\eta.
+$$
+
+For the Poisson bilinear form,
+
+$$
+K^{(T)}_{ij}
+=
+\int_T
+\nabla N_i\cdot\nabla N_j
+\,d\Omega,
+$$
+
+the change of variables gives
+
+$$
+K^{(T)}_{ij}
+=
+\int_{\hat T}
+\left(J^{-T}\nabla_{\xi}\hat N_i\right)
+\cdot
+\left(J^{-T}\nabla_{\xi}\hat N_j\right)
+|\det J|
+\,d\xi\,d\eta.
+$$
+
+Using quadrature on the reference element,
+
+$$
+\boxed{
+K^{(T)}_{ij}
+\approx
+\sum_{q=1}^{n_q}
+w_q\,
+\left(
+J^{-T}\nabla_{\xi}\hat N_i
+\right)_{\!q}
+\cdot
+\left(
+J^{-T}\nabla_{\xi}\hat N_j
+\right)_{\!q}
+\,|\det J_q|.
+}
+$$
+
+More generally, the elemental load vector is computed as
+
+$$
+\boxed{
+F^{(T)}_i
+\approx
+\sum_{q=1}^{n_q}
+w_q\,
+f(\mathbf x_q)\,
+\hat N_i(\xi_q,\eta_q)\,
+|\det J_q|.
+}
+$$
+
+For an affine \(P_1\) triangle, \(J\) is constant over the element, so
+
+$$
+J_q = J
+$$
+
+for every quadrature point.
+
+### Transformation of gradients
+
+If a shape function on the physical element is obtained from a reference
+shape function,
+
+$$
+N_i(x,y)
+=
+\hat N_i(\xi,\eta),
+$$
+
+then the chain rule gives
+
+$$
+\nabla_{\xi}\hat N_i
+=
+J^T \nabla_x N_i.
+$$
+
+Hence,
+
+$$
+\boxed{
+\nabla_x N_i
+=
+J^{-T}\nabla_{\xi}\hat N_i.
+}
+$$
+
+The elemental stiffness matrix can therefore be computed entirely on the
+reference triangle:
+
+$$
+\boxed{
+K^{(T)}_{ij}
+=
+\int_{\hat T}
+\left(J^{-T}\nabla_{\xi}\hat N_i\right)
+\cdot
+\left(J^{-T}\nabla_{\xi}\hat N_j\right)
+|\det J|
+\,d\xi\,d\eta.
+}
+$$
+
+For an affine \(P_1\) triangle, \(J\) and the reference gradients are constant,
+so the integrand is constant over the element.
+
+---
+
+## Transforming an integral
+
+An integral over a physical triangle,
+
+$$
+\int_T g(x,y)\,d\Omega,
+$$
+
+can therefore be written as
+
+$$
+\boxed{
+\int_{\widehat T}
+g(x(\xi,\eta),y(\xi,\eta))
+|\det J|
+\,d\xi\,d\eta.
+}
+$$
+
+The important practical idea is:
+
+$$
+\boxed{
+\text{all element integrations can be reduced to integration over the same reference triangle.}
+}
+$$
+
+---
+
+# 10. Numerical quadrature
+
+In general, finite-element integrals are evaluated numerically.
+
+On the reference triangle,
+
+$$
+\int_{\widehat T}
+g(\xi,\eta)\,d\xi\,d\eta
+$$
+
+is approximated by
+
+$$
+\boxed{
+\sum_{q=1}^{N_q}
+w_q\,g(\xi_q,\eta_q).
+}
+$$
+
+Hence, on a physical triangle,
+
+$$
+\boxed{
+\int_T
+g(x,y)\,d\Omega
+\approx
+\sum_{q=1}^{N_q}
+w_q\,
+g(x(\xi_q,\eta_q),y(\xi_q,\eta_q))
+|\det J|.
+}
+$$
+
+For the simplest one-point quadrature rule on the reference triangle, the integration point is the centroid
+
+$$
+(\xi_q,\eta_q)
+=
+\left(
+\frac13,\frac13
+\right).
+$$
+
+Since
+
+$$
+|\widehat T|=\frac12,
+$$
+
+the corresponding weight is
+
+$$
+w_q=\frac12.
+$$
+
+Thus
+
+$$
+\boxed{
+\int_{\widehat T}g(\xi,\eta)\,d\xi\,d\eta
+\approx
+\frac12
+g\left(\frac13,\frac13\right).
+}
+$$
+
+This rule is exact for affine functions.
+
+---
+
+# 11. Practical finite-element algorithm
+
+For the Poisson problem, a basic finite-element code follows the sequence:
+
+1. Generate a triangular mesh.
+2. Define the nodal degrees of freedom.
+3. For each triangle \(T\):
+   - construct the local shape functions;
+   - compute \(K^{(T)}\);
+   - compute \(F^{(T)}\);
+   - add these contributions to the global \(K\) and \(F\).
+4. Impose Dirichlet boundary conditions.
+5. Solve
+
+   $$
+   KU=F.
+   $$
+
+6. Reconstruct
+
+   $$
+   u_h(x,y)
+   =
+   \sum_i U_i\phi_i(x,y).
+   $$
+
+The central computational structure is therefore
+
+$$
+\boxed{
+\text{mesh}
+\rightarrow
+\text{local approximation}
+\rightarrow
+\text{element integrals}
+\rightarrow
+\text{assembly}
+\rightarrow
+\text{sparse global system}.
+}
+$$
+
+---
+
+# 12. Further reading
+
+Useful topics for understanding practical finite-element implementations in more detail include:
+
+- barycentric coordinates;
+- mapping between reference and physical elements;
+- transformation of gradients;
+- Gaussian quadrature on triangles;
+- higher-order elements;
+- isoparametric elements.

@@ -1,0 +1,1535 @@
+---
+title: "Session 1 — From Poisson to Galerkin"
+subtitle: "Finite differences, weak formulation, projection, and the motivation for finite elements"
+jupyter: python3 
+# Python: Select Interpreter  ->  C:\Users\pkerfriden\.conda\envs\fem-course\python.exe
+---
+
+## Learning objectives {.unnumbered}
+
+By the end of this session, students should be able to:
+
+- explain the difference between a strong and a weak formulation;
+- derive a finite-difference approximation of the Poisson equation;
+- explain that finite differences approximate differential operators directly;
+- derive the weak formulation of the Poisson problem;
+- construct a finite-dimensional Galerkin approximation;
+- interpret Galerkin approximation as an orthogonal projection;
+- explain the best-approximation property for the Poisson problem;
+- distinguish global, domain-specific approximation spaces from mesh-based finite-element spaces.
+
+## Schedule {.unnumbered}
+
+| Time | Topic |
+|---:|---|
+| 0–10 min | Poisson equation and model problem |
+| 10–25 min | Finite differences: direct approximation of derivatives |
+| 25–45 min | Strong form → weak form |
+| 45–58 min | Galerkin approximation |
+| 58–70 min | Global basis functions on a square |
+| 70–82 min | Galerkin orthogonality and projection |
+| 82–90 min | Why finite elements? |
+
+---
+
+# Model problem: diffusion equation
+
+Consider a domain $\Omega\subset\mathbb R^2$ whose boundary is decomposed into
+a Dirichlet part $\Gamma_D$ and a Neumann part $\Gamma_N$:
+
+$$
+\partial\Omega
+=
+\overline{\Gamma_D}
+\cup
+\overline{\Gamma_N},
+\qquad
+\Gamma_D\cap\Gamma_N=\varnothing.
+$$
+
+We consider the diffusion problem
+
+$$
+\boxed{
+-\nabla\cdot\left(k\nabla u\right)=f
+\qquad\text{in }\Omega,
+}
+$$
+
+where $k>0$ is a diffusion coefficient.
+
+Depending on the physical problem, $k$ may represent, for example, a thermal
+conductivity or a diffusivity.
+
+The boundary conditions are
+
+$$
+\boxed{
+u=g
+\qquad\text{on }\Gamma_D,
+}
+$$
+
+and
+
+$$
+\boxed{
+k\nabla u\cdot\mathbf n=q
+\qquad\text{on }\Gamma_N,
+}
+$$
+
+where $\mathbf n$ is the outward unit normal.
+
+The Dirichlet data $g$ may be zero or non-zero.
+
+In most of the course we will take
+
+$$
+k=1,
+$$
+
+in which case the equation reduces to the Poisson equation
+
+$$
+-\Delta u=f.
+$$
+
+---
+
+# A first discretization: finite differences
+
+Before introducing finite elements, consider the one-dimensional problem
+
+$$
+-u''(x)=f(x),
+\qquad x\in(0,1),
+$$
+
+with
+
+$$
+u(0)=u(1)=0.
+$$
+
+Introduce a regular grid
+
+$$
+x_i=ih,
+\qquad i=0,\ldots,N.
+$$
+
+Using Taylor expansions around \(x_i\),
+
+$$
+u(x_i+h)
+=
+u(x_i)
++
+h u'(x_i)
++
+\frac{h^2}{2}u''(x_i)
++
+O(h^3),
+$$
+
+and
+
+$$
+u(x_i-h)
+=
+u(x_i)
+-
+h u'(x_i)
++
+\frac{h^2}{2}u''(x_i)
++
+O(h^3).
+$$
+
+Adding the two expressions gives
+
+$$
+u''(x_i)
+\approx
+\frac{
+u_{i-1}-2u_i+u_{i+1}
+}{h^2}.
+$$
+
+Therefore
+
+$$
+\boxed{
+\frac{
+-u_{i-1}+2u_i-u_{i+1}
+}{h^2}
+=
+f_i.
+}
+$$
+
+For the interior unknowns this gives
+
+$$
+\frac{1}{h^2}
+\begin{pmatrix}
+2 & -1 & & \\
+-1 & 2 & -1 & \\
+& \ddots & \ddots & \ddots \\
+& & -1 & 2
+\end{pmatrix}
+\begin{pmatrix}
+u_1\\
+u_2\\
+\vdots\\
+u_{N-1}
+\end{pmatrix}
+=
+\begin{pmatrix}
+f_1\\
+f_2\\
+\vdots\\
+f_{N-1}
+\end{pmatrix}.
+$$
+
+## Interpretation
+
+Finite differences proceed directly from the differential equation:
+
+$$
+\boxed{
+\text{PDE}
+\longrightarrow
+\text{approximation of derivatives at grid points}.
+}
+$$
+
+The unknowns \(u_i\) approximate point values
+
+$$
+u_i \approx u(x_i).
+$$
+
+---
+
+## The two-dimensional stencil
+
+On a Cartesian grid,
+
+$$
+-\Delta u
+=
+-\frac{\partial^2u}{\partial x^2}
+-
+\frac{\partial^2u}{\partial y^2}.
+$$
+
+For a regular square grid with spacing \(h\),
+
+$$
+-\Delta u_{ij}
+\approx
+\frac{
+4u_{ij}
+-u_{i-1,j}
+-u_{i+1,j}
+-u_{i,j-1}
+-u_{i,j+1}
+}{h^2}.
+$$
+
+This corresponds to the classical five-point stencil:
+
+```text
+          -1
+           |
+      -1   4   -1
+           |
+          -1
+```
+
+This method is extremely natural on a rectangular domain with a Cartesian grid.
+
+
+## Finite-difference example
+
+Consider
+
+$$
+-\Delta u = 1
+$$
+
+on the unit square
+
+$$
+\Omega=(0,1)^2,
+$$
+
+with homogeneous Dirichlet boundary conditions
+
+$$
+u=0
+\qquad \text{on } \partial\Omega.
+$$
+
+We solve the discrete system numerically using a finite-difference approximation on a Cartesian grid.
+
+```{python}
+#| label: fig-fd-2d
+#| fig-cap: "Finite-difference solution of $-\\Delta u=1$ on the unit square."
+#| echo: true
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Number of intervals in each direction
+N = 10
+h = 1 / N
+
+# Complete grid, INCLUDING the boundary
+x = np.linspace(0, 1, N+1)
+y = np.linspace(0, 1, N+1)
+X, Y = np.meshgrid(x, y)
+
+# Number of interior points in one direction
+n = N - 1
+
+# 1D finite-difference matrix
+T = (
+    2*np.eye(n)
+    - np.eye(n, k=1)
+    - np.eye(n, k=-1)
+)
+
+I = np.eye(n)
+
+# 2D five-point finite-difference operator
+A = (1 / h**2) * (
+    np.kron(I, T)
+    + np.kron(T, I)
+)
+
+# f = 1 at the interior nodes
+f = np.ones(n*n)
+
+# Solve for interior nodal values
+u = np.linalg.solve(A, f)
+
+# Complete solution, including u = 0 on the boundary
+U = np.zeros((N+1, N+1))
+
+U[1:-1, 1:-1] = u.reshape((n, n))
+
+# Plot the solution
+plt.contourf(X, Y, U, levels=20)
+plt.colorbar(label="$u_h$")
+
+# Plot Cartesian grid
+for xi in x:
+    plt.plot([xi, xi], [0, 1], linewidth=0.5)
+
+for yi in y:
+    plt.plot([0, 1], [yi, yi], linewidth=0.5)
+
+# Plot all grid nodes
+plt.plot(X.ravel(), Y.ravel(), "o", markersize=2)
+
+plt.xlabel("$x$")
+plt.ylabel("$y$")
+plt.gca().set_aspect("equal")
+plt.show()
+```
+```{python}
+#| label: fig-fd-sparsity
+#| fig-cap: "Sparsity pattern of the finite-difference matrix."
+#| echo: true
+
+plt.figure()
+plt.spy(A, markersize=2)
+
+plt.xlabel("Column")
+plt.ylabel("Row")
+plt.title("Sparsity pattern of $A$")
+
+plt.show()
+```
+
+### Question
+
+What happens when:
+
+- the boundary is curved?
+- the geometry contains a hole?
+- the domain is irregular?
+- the mesh is not Cartesian?
+
+This motivates looking for a formulation that is less tied to direct pointwise approximations of the differential operator.
+
+
+***
+
+# From strong to weak formulation
+
+Consider the diffusion problem
+
+$$
+-\nabla\cdot(k\nabla u)=f
+\qquad \text{in }\Omega,
+$$
+
+with
+
+$$
+u=g
+\qquad \text{on }\Gamma_D,
+$$
+
+and
+
+$$
+k\nabla u\cdot\mathbf n=q
+\qquad \text{on }\Gamma_N.
+$$
+
+The boundary is decomposed into
+
+$$
+\partial\Omega
+=
+\overline{\Gamma_D}
+\cup
+\overline{\Gamma_N},
+\qquad
+\Gamma_D\cap\Gamma_N=\varnothing.
+$$
+
+Let $v$ be a test function satisfying
+
+$$
+v=0
+\qquad \text{on }\Gamma_D.
+$$
+
+Notice that $v$ does not have to vanish on $\Gamma_N$.
+
+Multiply the equation by $v$ and integrate over $\Omega$:
+
+$$
+-\int_\Omega
+v\,\nabla\cdot(k\nabla u)\,d\Omega
+=
+\int_\Omega fv\,d\Omega.
+$$
+
+Integration by parts gives
+
+$$
+\int_\Omega
+k\nabla u\cdot\nabla v\,d\Omega
+-
+\int_{\partial\Omega}
+v\,k\nabla u\cdot\mathbf n\,d\Gamma
+=
+\int_\Omega fv\,d\Omega.
+$$
+
+On $\Gamma_D$,
+
+$$
+v=0,
+$$
+
+while on $\Gamma_N$,
+
+$$
+k\nabla u\cdot\mathbf n=q.
+$$
+
+Therefore,
+
+$$
+\boxed{
+\int_\Omega
+k\nabla u\cdot\nabla v\,d\Omega
+=
+\int_\Omega fv\,d\Omega
++
+\int_{\Gamma_N}qv\,d\Gamma
+}
+$$
+
+## Trial and test spaces
+
+The solution must satisfy the prescribed Dirichlet condition. We therefore
+define the trial space
+
+$$
+V_g
+=
+\left\{
+w\in H^1(\Omega):
+w=g \text{ on }\Gamma_D
+\right\}.
+$$
+
+The test functions vanish on the Dirichlet boundary, so we define
+
+$$
+V_0
+=
+\left\{
+v\in H^1(\Omega):
+v=0 \text{ on }\Gamma_D
+\right\}.
+$$
+
+Define
+
+$$
+a(u,v)
+=
+\int_\Omega
+k\nabla u\cdot\nabla v\,d\Omega
+$$
+
+and
+
+$$
+\ell(v)
+=
+\int_\Omega fv\,d\Omega
++
+\int_{\Gamma_N}qv\,d\Gamma.
+$$
+
+The weak problem is therefore:
+
+$$
+\boxed{
+\text{Find }u\in V_g
+\text{ such that }
+a(u,v)=\ell(v)
+\qquad
+\forall v\in V_0.
+}
+$$
+
+For homogeneous Dirichlet conditions,
+
+$$
+g=0,
+$$
+
+and therefore
+
+$$
+V_g=V_0.
+$$
+
+## Why is this useful?
+
+The strong equation contains second derivatives of $u$, whereas the weak
+formulation involves only first derivatives through
+
+$$
+\nabla u.
+$$
+
+The two types of boundary conditions also enter the weak formulation in
+different ways:
+
+- the Dirichlet condition $u=g$ on $\Gamma_D$ is imposed through the trial space;
+- the Neumann condition $k\nabla u\cdot\mathbf n=q$ on $\Gamma_N$ appears naturally in the right-hand side.
+
+> **Key point:** the weak formulation is not yet a numerical approximation.
+> It is a reformulation of the boundary-value problem.
+
+***
+
+
+
+
+
+# Galerkin approximation
+
+We first consider homogeneous Dirichlet conditions,
+
+$$
+g=0.
+$$
+
+The exact solution and the test functions then belong to the same space,
+
+$$
+V_0
+=
+\left\{
+v\in H^1(\Omega):
+v=0 \text{ on }\Gamma_D
+\right\}.
+$$
+
+The weak problem is
+
+$$
+a(u,v)=\ell(v)
+\qquad
+\forall v\in V_0,
+$$
+
+where
+
+$$
+a(u,v)
+=
+\int_\Omega
+k\nabla u\cdot\nabla v\,d\Omega
+$$
+
+and
+
+$$
+\ell(v)
+=
+\int_\Omega fv\,d\Omega
++
+\int_{\Gamma_N}qv\,d\Gamma.
+$$
+
+Choose a finite-dimensional approximation space
+
+$$
+V_N\subset V_0.
+$$
+
+The Galerkin approximation is defined by
+
+$$
+\boxed{
+\text{Find }u_N\in V_N
+\text{ such that }
+a(u_N,v_N)=\ell(v_N)
+\qquad
+\forall v_N\in V_N.
+}
+$$
+
+
+## Galerkin orthogonality
+
+Since
+
+$$
+V_N\subset V_0,
+$$
+
+the exact solution also satisfies
+
+$$
+a(u,v_N)
+=
+\ell(v_N)
+\qquad
+\forall v_N\in V_N.
+$$
+
+Subtracting the Galerkin equation gives
+
+$$
+\boxed{
+a(u-u_N,v_N)=0
+\qquad
+\forall v_N\in V_N.
+}
+$$
+
+This is **Galerkin orthogonality**.
+
+## Energy inner product
+
+For the symmetric diffusion problem,
+
+$$
+a(v,w)
+=
+\int_\Omega
+k\nabla v\cdot\nabla w\,d\Omega
+$$
+
+defines an inner product on $V_0$.
+
+The associated energy norm is
+
+$$
+\boxed{
+\|v\|_a
+=
+\sqrt{a(v,v)}
+=
+\left(
+\int_\Omega
+k|\nabla v|^2\,d\Omega
+\right)^{1/2}.
+}
+$$
+
+Galerkin orthogonality can therefore be written as
+
+$$
+u-u_N
+\perp_a
+V_N.
+$$
+
+Thus $u_N$ is the orthogonal projection of $u$ onto $V_N$ with respect to
+the energy inner product.
+
+## Best-approximation property
+
+Take any
+
+$$
+v_N\in V_N.
+$$
+
+Since
+
+$$
+u-v_N
+=
+(u-u_N)
++
+(u_N-v_N)
+$$
+
+and
+
+$$
+u_N-v_N\in V_N,
+$$
+
+Galerkin orthogonality gives
+
+$$
+a(u-u_N,u_N-v_N)=0.
+$$
+
+Therefore,
+
+$$
+\|u-v_N\|_a^2
+=
+\|u-u_N\|_a^2
++
+\|u_N-v_N\|_a^2.
+$$
+
+Hence
+
+$$
+\boxed{
+\|u-u_N\|_a
+\le
+\|u-v_N\|_a
+\qquad
+\forall v_N\in V_N.
+}
+$$
+
+Equivalently,
+
+$$
+\boxed{
+\|u-u_N\|_a
+=
+\min_{v_N\in V_N}
+\|u-v_N\|_a.
+}
+$$
+
+> **Interpretation:** the Galerkin solution is the best approximation of the
+> exact solution available in $V_N$, measured in the energy norm.
+
+## What if the Dirichlet condition is non-zero?
+
+Suppose now that
+
+$$
+u=g
+\qquad\text{on }\Gamma_D,
+$$
+
+with $g\neq0$.
+
+The solution belongs to the affine space $V_g$, whereas the test functions
+still belong to $V_0$. To recover the homogeneous setting, introduce a
+**lifting** $u_g\in V_g$ of the prescribed boundary data:
+
+$$
+u_g=g
+\qquad\text{on }\Gamma_D.
+$$
+
+Write
+
+$$
+\boxed{
+u=u_g+w.
+}
+$$
+
+Since $u$ and $u_g$ have the same trace on $\Gamma_D$,
+
+$$
+w=u-u_g\in V_0.
+$$
+
+Substituting $u=u_g+w$ into the weak problem gives
+
+$$
+a(u_g+w,v)=\ell(v)
+\qquad
+\forall v\in V_0,
+$$
+
+or
+
+$$
+\boxed{
+a(w,v)
+=
+\ell(v)-a(u_g,v)
+\qquad
+\forall v\in V_0.
+}
+$$
+
+The problem for $w$ therefore has homogeneous Dirichlet conditions and can
+be approximated exactly as before.
+
+Choose
+
+$$
+V_N\subset V_0
+$$
+
+and seek $w_N\in V_N$ such that
+
+$$
+a(w_N,v_N)
+=
+\ell(v_N)-a(u_g,v_N)
+\qquad
+\forall v_N\in V_N.
+$$
+
+The approximation of the original solution is then
+
+$$
+\boxed{
+u_N=u_g+w_N.
+}
+$$
+
+Subtracting the exact and discrete equations again gives
+
+$$
+\boxed{
+a(u-u_N,v_N)=0
+\qquad
+\forall v_N\in V_N.
+}
+$$
+
+Thus the same Galerkin orthogonality and best-approximation argument applies.
+For non-homogeneous Dirichlet conditions, the approximation takes place in
+the affine space
+
+$$
+u_g+V_N.
+$$
+
+
+
+
+
+
+# Global basis functions on the square
+
+
+Consider the Poisson problem
+
+$$
+-\Delta u = 1
+\qquad \text{in } \Omega=(0,1)^2,
+$$
+
+with homogeneous Dirichlet boundary conditions
+
+$$
+u=0
+\qquad \text{on } \partial\Omega.
+$$
+
+For this simple geometry, a convenient family of admissible functions is
+
+$$
+\boxed{
+\phi_{mn}(x,y)
+=
+\sin(m\pi x)\sin(n\pi y),
+\qquad
+m,n\in\mathbb{N}^*.
+}
+$$
+
+These functions automatically satisfy
+
+$$
+\phi_{mn}=0
+\qquad
+\text{on }\partial\Omega.
+$$
+
+We may therefore choose a finite-dimensional Galerkin approximation of the form
+
+$$
+u_N(x,y)
+=
+\sum_{(m,n)\in I_N}
+U_{mn}\,
+\sin(m\pi x)\sin(n\pi y),
+$$
+
+where \(I_N\) is a finite set of retained mode indices.
+
+These basis functions are chosen **a priori** from the geometry and boundary conditions.
+They have global support over the domain.
+
+
+
+## One-mode Galerkin approximation
+
+We first retain only the mode
+
+$$
+m=n=1,
+$$
+
+so that
+
+$$
+\phi_{11}(x,y)
+=
+\sin(\pi x)\sin(\pi y).
+$$
+
+We seek
+
+$$
+u_1(x,y)
+=
+U_{11}\phi_{11}(x,y).
+$$
+
+The Galerkin equation is
+
+$$
+U_{11}\,a(\phi_{11},\phi_{11})
+=
+\ell(\phi_{11}),
+$$
+
+with
+
+$$
+a(\phi_{11},\phi_{11})
+=
+\int_\Omega
+|\nabla\phi_{11}|^2\,d\Omega
+=
+\frac{\pi^2}{2},
+$$
+
+and, since \(f=1\),
+
+$$
+\ell(\phi_{11})
+=
+\int_\Omega
+\phi_{11}\,d\Omega
+=
+\frac{4}{\pi^2}.
+$$
+
+Hence
+
+$$
+U_{11}
+=
+\frac{\ell(\phi_{11})}
+{a(\phi_{11},\phi_{11})}
+=
+\frac{8}{\pi^4}.
+$$
+
+Therefore the one-mode Galerkin approximation is
+
+$$
+\boxed{
+u_1(x,y)
+=
+\frac{8}{\pi^4}
+\sin(\pi x)\sin(\pi y).
+}
+$$
+
+---
+
+## Exact solution
+
+The exact solution can be written as the Fourier sine series
+
+$$
+\boxed{
+u(x,y)
+=
+\frac{16}{\pi^4}
+\sum_{\substack{m,n=1\\m,n\ \mathrm{odd}}}^{\infty}
+\frac{
+\sin(m\pi x)\sin(n\pi y)
+}{
+mn(m^2+n^2)
+}.
+}
+$$
+
+The first term of this exact expansion is
+
+$$
+\frac{16}{\pi^4}
+\frac{
+\sin(\pi x)\sin(\pi y)
+}{
+1\cdot 1\cdot(1^2+1^2)
+}
+=
+\frac{8}{\pi^4}
+\sin(\pi x)\sin(\pi y),
+$$
+
+which is exactly the one-mode Galerkin approximation derived above.
+
+
+
+## Comparison with the exact solution
+
+The following Python code compares the one-mode Galerkin approximation with
+a truncated Fourier-series representation of the exact solution.
+
+```{python}
+#| label: fig-galerkin-exact-sine
+#| fig-cap: "Exact solution (truncated Fourier series) and one-mode Galerkin approximation."
+#| echo: true
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Plotting grid
+x = np.linspace(0, 1, 151)
+y = np.linspace(0, 1, 151)
+
+X, Y = np.meshgrid(x, y)
+
+# --------------------------------
+# One-mode Galerkin approximation
+# --------------------------------
+
+U11 = 8 / np.pi**4
+
+U_galerkin = (
+    U11
+    * np.sin(np.pi * X)
+    * np.sin(np.pi * Y)
+)
+
+# --------------------------------
+# Exact solution
+# Truncated Fourier sine series
+# --------------------------------
+
+U_exact = np.zeros_like(X)
+
+# Number of odd modes retained
+n_modes = 30
+odd_modes = np.arange(1, 2*n_modes, 2)
+
+for m in odd_modes:
+    for n in odd_modes:
+        U_exact += (
+            16 / np.pi**4
+            * np.sin(m*np.pi*X)
+            * np.sin(n*np.pi*Y)
+            / (m*n*(m**2 + n**2))
+        )
+
+# Common scale for both plots
+vmin = 0.0
+vmax = max(U_exact.max(), U_galerkin.max())
+levels = np.linspace(vmin, vmax, 21)
+
+# --------------------------------
+# Side-by-side plots
+# --------------------------------
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+
+c1 = axes[0].contourf(
+    X, Y, U_exact,
+    levels=levels
+)
+
+axes[0].set_title("Exact solution")
+axes[0].set_xlabel("$x$")
+axes[0].set_ylabel("$y$")
+axes[0].set_aspect("equal")
+
+c2 = axes[1].contourf(
+    X, Y, U_galerkin,
+    levels=levels
+)
+
+axes[1].set_title("One-mode Galerkin")
+axes[1].set_xlabel("$x$")
+axes[1].set_ylabel("$y$")
+axes[1].set_aspect("equal")
+
+fig.colorbar(
+    c2,
+    ax=axes,
+    label="$u(x,y)$",
+    shrink=0.85
+)
+
+plt.show()
+```
+
+The one-mode approximation already captures the dominant shape of the exact
+solution, despite containing only one degree of freedom.
+
+This example is especially convenient because the chosen global basis functions
+are also eigenfunctions of the Laplacian. The Galerkin coefficients therefore
+coincide with the corresponding Fourier coefficients of the exact solution.
+
+
+
+## One-mode approximation
+
+Take
+
+$$
+f=1
+$$
+
+and use only
+
+$$
+\phi(x,y)
+=
+\sin(\pi x)\sin(\pi y).
+$$
+
+Seek
+
+$$
+u_1=U\phi.
+$$
+
+Galerkin gives
+
+$$
+U\,a(\phi,\phi)
+=
+\ell(\phi).
+$$
+
+Now
+
+$$
+a(\phi,\phi)
+=
+\int_\Omega
+|\nabla\phi|^2\,d\Omega
+=
+\frac{\pi^2}{2},
+$$
+
+and
+
+$$
+\ell(\phi)
+=
+\int_\Omega
+\phi\,d\Omega
+=
+\frac{4}{\pi^2}.
+$$
+
+Hence
+
+$$
+U
+=
+\frac{8}{\pi^4},
+$$
+
+and
+
+$$
+\boxed{
+u_1(x,y)
+=
+\frac{8}{\pi^4}
+\sin(\pi x)\sin(\pi y).
+}
+$$
+
+This is already a numerical approximation of the Poisson problem.
+
+No mesh has been used.
+
+
+
+# Galerkin as a projection
+
+The exact weak solution satisfies
+
+$$
+a(u,v)
+=
+\ell(v)
+\qquad
+\forall v\in V.
+$$
+
+In particular, since
+
+$$
+V_N\subset V,
+$$
+
+we have
+
+$$
+a(u,v_N)
+=
+\ell(v_N)
+\qquad
+\forall v_N\in V_N.
+$$
+
+The Galerkin solution satisfies
+
+$$
+a(u_N,v_N)
+=
+\ell(v_N)
+\qquad
+\forall v_N\in V_N.
+$$
+
+Subtracting the two equations,
+
+$$
+\boxed{
+a(u-u_N,v_N)=0
+\qquad
+\forall v_N\in V_N.
+}
+$$
+
+This is **Galerkin orthogonality**.
+
+
+
+## Energy inner product
+
+For the Poisson problem,
+
+$$
+a(v,w)
+=
+\int_\Omega
+\nabla v\cdot\nabla w\,d\Omega
+$$
+
+defines an inner product on \(H_0^1(\Omega)\).
+
+The associated energy norm is
+
+$$
+\boxed{
+\|v\|_a
+=
+\sqrt{a(v,v)}
+=
+\left(
+\int_\Omega
+|\nabla v|^2\,d\Omega
+\right)^{1/2}.
+}
+$$
+
+Galerkin orthogonality therefore means
+
+$$
+u-u_N
+\perp_a
+V_N.
+$$
+
+Thus \(u_N\) is the orthogonal projection of \(u\) onto \(V_N\) with respect to the energy inner product.
+
+
+
+## Best-approximation property
+
+Take any
+
+$$
+v_N\in V_N.
+$$
+
+Write
+
+$$
+u-v_N
+=
+(u-u_N)
++
+(u_N-v_N).
+$$
+
+Since
+
+$$
+u_N-v_N\in V_N,
+$$
+
+Galerkin orthogonality gives
+
+$$
+a(u-u_N,u_N-v_N)=0.
+$$
+
+Therefore,
+
+$$
+a(u-v_N,u-v_N)
+=
+a(u-u_N,u-u_N)
++
+a(u_N-v_N,u_N-v_N).
+$$
+
+Hence
+
+$$
+\boxed{
+a(u-u_N,u-u_N)
+\le
+a(u-v_N,u-v_N)
+\qquad
+\forall v_N\in V_N.
+}
+$$
+
+Equivalently,
+
+$$
+\boxed{
+\|u-u_N\|_a
+\le
+\|u-v_N\|_a
+\qquad
+\forall v_N\in V_N.
+}
+$$
+
+or
+
+$$
+\boxed{
+\|u-u_N\|_a
+=
+\min_{v_N\in V_N}
+\|u-v_N\|_a.
+}
+$$
+
+> **Interpretation:** among all functions available in the approximation space, the Galerkin solution is the one closest to the exact solution in the energy norm.
+
+This is the projection interpretation of Galerkin's method.
+
+
+
+## Relation to Céa's lemma
+
+For the symmetric Poisson problem, the result above is an exact best-approximation property.
+
+For a more general continuous and coercive bilinear form,
+
+$$
+|a(u,v)|
+\le
+M\|u\|_V\|v\|_V,
+$$
+
+and
+
+$$
+a(v,v)
+\ge
+\alpha\|v\|_V^2,
+$$
+
+Céa's lemma gives
+
+$$
+\boxed{
+\|u-u_N\|_V
+\le
+\frac{M}{\alpha}
+\inf_{v_N\in V_N}
+\|u-v_N\|_V.
+}
+$$
+
+For the present Poisson problem, the energy inner product makes the projection interpretation particularly simple.
+
+
+
+# Why finite elements?
+
+At this point, Galerkin gives us a powerful principle:
+
+$$
+\boxed{
+\text{Choose a suitable finite-dimensional space }V_N,
+\text{ and Galerkin gives its best approximation.}
+}
+$$
+
+The remaining question is therefore:
+
+> **How should we construct \(V_N\)?**
+
+For the square, analytical functions such as
+
+$$
+\sin(m\pi x)\sin(n\pi y)
+$$
+
+are natural.
+
+But consider:
+
+- an L-shaped domain;
+- a domain containing holes;
+- a curved mechanical component;
+- a geometry that changes frequently.
+
+Constructing global analytical basis functions satisfying the boundary conditions becomes difficult.
+
+Finite differences have a related difficulty: simple Cartesian stencils are naturally adapted to regular grids, but become less convenient near irregular boundaries.
+
+Finite elements solve both problems by introducing a mesh.
+
+Instead of constructing global functions adapted to the whole domain,
+
+$$
+\boxed{
+\text{divide the domain into simple elements and construct the approximation locally.}
+}
+$$
+
+A finite-element approximation still has the Galerkin form
+
+$$
+u_h
+=
+\sum_i U_i\phi_i,
+$$
+
+but the basis functions \(\phi_i\) are generated from the mesh and typically have local support.
+
+| Global Galerkin basis | Finite-element basis |
+|---|---|
+| chosen a priori | generated from a mesh |
+| adapted to the complete domain | built locally from simple elements |
+| typically global support | local support |
+| Dirichlet BCs built into analytical functions | Dirichlet BCs imposed through boundary DOFs |
+| generic matrix may be dense | matrix is sparse |
+| convenient for simple geometries | convenient for complex geometries |
+
+> **Take-home message**
+>
+> Finite elements do not replace the Galerkin principle.
+> They provide a systematic, local, mesh-based construction of the Galerkin approximation space.
+
+---
+
+# Session 1 in one diagram
+
+$$
+\boxed{
+\begin{array}{ccccc}
+&& -\Delta u=f &&\\[2mm]
+& \swarrow && \searrow &\\[-1mm]
+\text{approximate derivatives}
+&&&
+\text{weak formulation}\\
+\downarrow
+&&&
+\downarrow\\
+\text{finite differences}
+&&&
+\text{Galerkin}\\
+&&&
+\downarrow\\
+&&&
+\text{projection / best approximation}\\
+&&&
+\downarrow\\
+&&&
+\text{choice of approximation space}\\
+&&&
+\downarrow\\
+&&&
+\text{mesh-based local basis}\\
+&&&
+\downarrow\\
+&&&
+\text{finite elements}
+\end{array}
+}
+$$
+
+---
+
+# What comes next?
+
+Session 2 will answer the practical question:
+
+> How does a mesh generate the approximation space \(V_h\)?
+
+We will introduce:
+
+- one-dimensional meshes;
+- nodal shape functions;
+- element stiffness matrices;
+- assembly;
+- Dirichlet boundary conditions;
+- triangular \(P_1\) elements in two dimensions.
