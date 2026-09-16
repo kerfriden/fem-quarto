@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method – Introduction to the Finite Element Method</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-7dd2c24e40fa7e13410559080ea32b90.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./session3.html">Session 3 — Analysis of the finite element method</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Introduction to the Finite Element Method</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./session1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Session 1 — The Galerkin method for diffusion problems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./session2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Session 2 — The finite element method</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./session3.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Session 3 — Analysis of the finite element method</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#session-schedule" id="toc-session-schedule" class="nav-link" data-scroll-target="#session-schedule">Session schedule</a></li>
+  <li><a href="#from-galerkin-optimality-to-convergence" id="toc-from-galerkin-optimality-to-convergence" class="nav-link" data-scroll-target="#from-galerkin-optimality-to-convergence"><span class="header-section-number">1</span> From Galerkin optimality to convergence</a></li>
+  <li><a href="#mesh-refinement" id="toc-mesh-refinement" class="nav-link" data-scroll-target="#mesh-refinement"><span class="header-section-number">2</span> Mesh refinement</a></li>
+  <li><a href="#nodal-interpolation" id="toc-nodal-interpolation" class="nav-link" data-scroll-target="#nodal-interpolation"><span class="header-section-number">3</span> Nodal interpolation</a></li>
+  <li><a href="#interpolation-error-in-one-dimension" id="toc-interpolation-error-in-one-dimension" class="nav-link" data-scroll-target="#interpolation-error-in-one-dimension"><span class="header-section-number">4</span> Interpolation error in one dimension</a>
+  <ul class="collapse">
+  <li><a href="#linear-elements-p_1" id="toc-linear-elements-p_1" class="nav-link" data-scroll-target="#linear-elements-p_1"><span class="header-section-number">4.1</span> Linear elements: <span class="math inline">\(P_1\)</span></a>
+  <ul class="collapse">
+  <li><a href="#error-on-the-function" id="toc-error-on-the-function" class="nav-link" data-scroll-target="#error-on-the-function"><span class="header-section-number">4.1.1</span> Error on the function</a></li>
+  <li><a href="#error-on-the-derivative" id="toc-error-on-the-derivative" class="nav-link" data-scroll-target="#error-on-the-derivative"><span class="header-section-number">4.1.2</span> Error on the derivative</a></li>
+  </ul></li>
+  <li><a href="#quadratic-elements-p_2" id="toc-quadratic-elements-p_2" class="nav-link" data-scroll-target="#quadratic-elements-p_2"><span class="header-section-number">4.2</span> Quadratic elements: <span class="math inline">\(P_2\)</span></a></li>
+  </ul></li>
+  <li><a href="#extension-to-two-dimensions" id="toc-extension-to-two-dimensions" class="nav-link" data-scroll-target="#extension-to-two-dimensions"><span class="header-section-number">5</span> Extension to two dimensions</a></li>
+  <li><a href="#interpolation-error-versus-finite-element-error" id="toc-interpolation-error-versus-finite-element-error" class="nav-link" data-scroll-target="#interpolation-error-versus-finite-element-error"><span class="header-section-number">6</span> Interpolation error versus finite-element error</a>
+  <ul class="collapse">
+  <li><a href="#error-in-the-solution-itself-the-l2-norm" id="toc-error-in-the-solution-itself-the-l2-norm" class="nav-link" data-scroll-target="#error-in-the-solution-itself-the-l2-norm"><span class="header-section-number">6.1</span> Error in the solution itself: the <span class="math inline">\(L^2\)</span> norm</a></li>
+  </ul></li>
+  <li><a href="#interpreting-a-convergence-rate" id="toc-interpreting-a-convergence-rate" class="nav-link" data-scroll-target="#interpreting-a-convergence-rate"><span class="header-section-number">7</span> Interpreting a convergence rate</a></li>
+  <li><a href="#solution-regularity-and-convergence-rate" id="toc-solution-regularity-and-convergence-rate" class="nav-link" data-scroll-target="#solution-regularity-and-convergence-rate"><span class="header-section-number">8</span> Solution regularity and convergence rate</a></li>
+  <li><a href="#mesh-quality-and-shape-regularity" id="toc-mesh-quality-and-shape-regularity" class="nav-link" data-scroll-target="#mesh-quality-and-shape-regularity"><span class="header-section-number">9</span> Mesh quality and shape regularity</a></li>
+  <li><a href="#convergence-and-number-of-unknowns" id="toc-convergence-and-number-of-unknowns" class="nav-link" data-scroll-target="#convergence-and-number-of-unknowns"><span class="header-section-number">10</span> Convergence and number of unknowns</a>
+  <ul class="collapse">
+  <li><a href="#conditioning-of-the-stiffness-matrix" id="toc-conditioning-of-the-stiffness-matrix" class="nav-link" data-scroll-target="#conditioning-of-the-stiffness-matrix"><span class="header-section-number">10.1</span> Conditioning of the stiffness matrix</a></li>
+  </ul></li>
+  <li><a href="#linear-algebra-and-computational-cost" id="toc-linear-algebra-and-computational-cost" class="nav-link" data-scroll-target="#linear-algebra-and-computational-cost"><span class="header-section-number">11</span> Linear algebra and computational cost</a>
+  <ul class="collapse">
+  <li><a href="#assemnly-cost" id="toc-assemnly-cost" class="nav-link" data-scroll-target="#assemnly-cost"><span class="header-section-number">11.1</span> Assemnly cost</a></li>
+  <li><a href="#dense-versus-sparse-direct-solvers" id="toc-dense-versus-sparse-direct-solvers" class="nav-link" data-scroll-target="#dense-versus-sparse-direct-solvers"><span class="header-section-number">11.2</span> Dense versus sparse direct solvers</a></li>
+  </ul></li>
+  <li><a href="#accuracy-and-computational-cost" id="toc-accuracy-and-computational-cost" class="nav-link" data-scroll-target="#accuracy-and-computational-cost"><span class="header-section-number">12</span> Accuracy and computational cost</a></li>
+  <li><a href="#convergence-study" id="toc-convergence-study" class="nav-link" data-scroll-target="#convergence-study"><span class="header-section-number">13</span> Convergence study</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">14</span> Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="learning-objectives">Learning objectives</h2>
+<p>By the end of this session, students should be able to:</p>
+<ul>
+<li>distinguish interpolation error from finite-element error;</li>
+<li>relate finite-element accuracy to polynomial degree, mesh size, and solution regularity;</li>
+<li>state the expected convergence rates for <span class="math inline">\(P_1\)</span> and <span class="math inline">\(P_2\)</span> elements;</li>
+<li>explain the role of mesh quality in approximation and conditioning;</li>
+<li>relate mesh refinement to the number of degrees of freedom;</li>
+<li>understand the main computational consequences of sparsity and conditioning.</li>
+</ul>
+</section>
+<section id="session-schedule" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="session-schedule">Session schedule</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Time</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0–10 min</td>
+<td>From Galerkin optimality to convergence</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10–30 min</td>
+<td>Interpolation error in 1D</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">30–45 min</td>
+<td>Extension to 2D and higher-order elements</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">45–60 min</td>
+<td>Finite-element error and solution regularity</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">60–70 min</td>
+<td>Mesh quality and shape regularity</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">70–80 min</td>
+<td>Convergence, degrees of freedom, and conditioning</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">80–90 min</td>
+<td>Linear solvers and computational cost</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="from-galerkin-optimality-to-convergence" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> From Galerkin optimality to convergence</h1>
+<p>For simplicity, the convergence discussion is written for homogeneous Dirichlet conditions. The same reasoning applies to non-homogeneous Dirichlet conditions after boundary lifting.</p>
+<p>Recall from Session 1 that, for the Poisson problem,</p>
+<p><span class="math display">\[
+\|v\|_a
+=
+|v|_{H^1(\Omega)},
+\]</span></p>
+<p>and the Galerkin solution is the best approximation in the finite-element space:</p>
+<p><span class="math display">\[
+\boxed{
+\|u-u_h\|_a
+=
+\min_{v_h\in V_{h,0}}
+\|u-v_h\|_a.
+}
+\]</span></p>
+<p>The convergence question therefore becomes:</p>
+<blockquote class="blockquote">
+<p>How well can the finite-element space approximate the exact solution when the mesh is refined?</p>
+</blockquote>
+</section>
+<section id="mesh-refinement" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Mesh refinement</h1>
+<p>Recall from Session 2 that</p>
+<p><span class="math display">\[
+h_T
+=
+\operatorname{diam}(T)
+=
+\max_{\mathbf x,\mathbf y\in T}
+|\mathbf x-\mathbf y|,
+\qquad
+h
+=
+\max_{T\in\mathcal T_h} h_T.
+\]</span></p>
+<p>Mesh refinement corresponds to</p>
+<p><span class="math display">\[
+\boxed{h\rightarrow 0.}
+\]</span></p>
+</section>
+<section id="nodal-interpolation" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Nodal interpolation</h1>
+<p>Let <span class="math inline">\(I_hu\)</span> denote the nodal finite-element interpolant of <span class="math inline">\(u\)</span>.</p>
+<p>At every mesh node <span class="math inline">\(\mathbf x_i\)</span>,</p>
+<p><span class="math display">\[
+\boxed{
+I_hu(\mathbf x_i)
+=
+u(\mathbf x_i).
+}
+\]</span></p>
+<p>Using the global basis functions,</p>
+<p><span class="math display">\[
+I_hu
+=
+\sum_i
+u(\mathbf x_i)\phi_i.
+\]</span></p>
+<p>The interpolant is not the finite-element solution of the PDE. It is one particular function in the approximation space, used to measure how accurately that space is able to represent <span class="math inline">\(u\)</span>.</p>
+</section>
+<section id="interpolation-error-in-one-dimension" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Interpolation error in one dimension</h1>
+<section id="linear-elements-p_1" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="linear-elements-p_1"><span class="header-section-number">4.1</span> Linear elements: <span class="math inline">\(P_1\)</span></h2>
+<p>Consider a one-dimensional element</p>
+<p><span class="math display">\[
+T=[x_1,x_2],
+\qquad
+h_T=x_2-x_1.
+\]</span></p>
+<p>Let <span class="math inline">\(I_hu\)</span> denote the <span class="math inline">\(P_1\)</span> interpolant of <span class="math inline">\(u\)</span>, defined by</p>
+<p><span class="math display">\[
+I_hu(x_1)=u(x_1),
+\qquad
+I_hu(x_2)=u(x_2).
+\]</span></p>
+<p>Recall that the <span class="math inline">\(L^\infty\)</span> norm measures the maximum absolute value of a function over the element:</p>
+<p><span class="math display">\[
+\boxed{
+\|v\|_{L^\infty(T)}
+=
+\max_{x\in T}|v(x)|.
+}
+\]</span></p>
+<p>Thus,</p>
+<p><span class="math display">\[
+\|u-I_hu\|_{L^\infty(T)}
+\]</span></p>
+<p>is the largest interpolation error anywhere in the element.</p>
+<section id="error-on-the-function" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="error-on-the-function"><span class="header-section-number">4.1.1</span> Error on the function</h3>
+<div id="cell-fig-1d-interpolation-error" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-1d-interpolation-error" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-1d-interpolation-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="session3_files/figure-html/fig-1d-interpolation-error-output-1.png" width="760" height="422" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-1d-interpolation-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: A cubic function on one element <span class="math inline">\(T=[x_1,x_2]\)</span>, its linear interpolant, and the maximum interpolation error.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Choose any point <span class="math inline">\(x\in T\)</span>. Taylor expansions of the nodal values about <span class="math inline">\(x\)</span> give</p>
+<p><span class="math display">\[
+u(x_1)
+=
+u(x)
++
+u'(x)(x_1-x)
++
+r_1,
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+u(x_2)
+=
+u(x)
++
+u'(x)(x_2-x)
++
+r_2,
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+|r_1|
+\le
+\frac{1}{2}|x_1-x|^2
+\|u''\|_{L^\infty(T)},
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+|r_2|
+\le
+\frac{1}{2}|x_2-x|^2
+\|u''\|_{L^\infty(T)}.
+\]</span></p>
+<p>The <span class="math inline">\(P_1\)</span> interpolant can be written as</p>
+<p><span class="math display">\[
+I_hu(x)
+=
+\frac{x_2-x}{h_T}u(x_1)
++
+\frac{x-x_1}{h_T}u(x_2).
+\]</span></p>
+<p>Substituting the Taylor expansions, the constant term gives <span class="math inline">\(u(x)\)</span> and the linear terms cancel exactly. Therefore,</p>
+<p><span class="math display">\[
+I_hu(x)-u(x)
+=
+\frac{x_2-x}{h_T}r_1
++
+\frac{x-x_1}{h_T}r_2.
+\]</span></p>
+<p>Using the bounds on the Taylor remainders gives</p>
+<p><span class="math display">\[
+|I_hu(x)-u(x)|
+\le
+\frac{1}{2}
+(x-x_1)(x_2-x)
+\|u''\|_{L^\infty(T)}.
+\]</span></p>
+<p>Since</p>
+<p><span class="math display">\[
+(x-x_1)(x_2-x)
+\le
+\frac{h_T^2}{4},
+\]</span></p>
+<p>we obtain</p>
+<p><span class="math display">\[
+\boxed{
+\|u-I_hu\|_{L^\infty(T)}
+\le
+\frac{h_T^2}{8}
+\|u''\|_{L^\infty(T)}.
+}
+\]</span></p>
+<p>Hence,</p>
+<p><span class="math display">\[
+\boxed{
+u-I_hu=O(h_T^2).
+}
+\]</span></p>
+</section>
+<section id="error-on-the-derivative" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="error-on-the-derivative"><span class="header-section-number">4.1.2</span> Error on the derivative</h3>
+<p>The <span class="math inline">\(P_1\)</span> interpolant is linear on the element, so its derivative is constant:</p>
+<p><span class="math display">\[
+(I_hu)'
+=
+\frac{u(x_2)-u(x_1)}{h_T}.
+\]</span></p>
+<p>Using the same Taylor expansions,</p>
+<p><span class="math display">\[
+u(x_2)-u(x_1)
+=
+h_Tu'(x)
++
+r_2-r_1,
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+(I_hu)'
+=
+u'(x)
++
+\frac{r_2-r_1}{h_T}.
+\]</span></p>
+<p>Hence,</p>
+<p><span class="math display">\[
+|(u-I_hu)'(x)|
+\le
+\frac{|r_1|+|r_2|}{h_T}.
+\]</span></p>
+<p>Since</p>
+<p><span class="math display">\[
+|x-x_1|+|x_2-x|=h_T,
+\]</span></p>
+<p>we have</p>
+<p><span class="math display">\[
+|x-x_1|^2+|x_2-x|^2
+\le
+h_T^2.
+\]</span></p>
+<p>Therefore,</p>
+<p><span class="math display">\[
+\boxed{
+\|(u-I_hu)'\|_{L^\infty(T)}
+\le
+\frac{h_T}{2}
+\|u''\|_{L^\infty(T)}.
+}
+\]</span></p>
+<p>Hence,</p>
+<p><span class="math display">\[
+\boxed{
+(u-I_hu)'=O(h_T).
+}
+\]</span></p>
+<p>The loss of one order has a simple interpretation: differentiating removes one power of the element size,</p>
+<p><span class="math display">\[
+\boxed{
+O(h_T^2)
+\quad\xrightarrow{\text{one derivative}}\quad
+O(h_T).
+}
+\]</span></p>
+<p>Thus, for <span class="math inline">\(P_1\)</span> interpolation,</p>
+<p><span class="math display">\[
+\boxed{
+u-I_hu=O(h_T^2),
+\qquad
+(u-I_hu)'=O(h_T).
+}
+\]</span></p>
+<p>The first Taylor term that cannot be reproduced by a <span class="math inline">\(P_1\)</span> approximation is the quadratic term, which is controlled by the second derivative <span class="math inline">\(u''\)</span>.</p>
+</section>
+</section>
+<section id="quadratic-elements-p_2" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="quadratic-elements-p_2"><span class="header-section-number">4.2</span> Quadratic elements: <span class="math inline">\(P_2\)</span></h2>
+<p>A quadratic element reproduces exactly all polynomials of degree at most two.</p>
+<p>The first Taylor term which is not represented is therefore of degree three.</p>
+<p>Without proof,</p>
+<p><span class="math display">\[
+\boxed{
+\|u-I_hu\|_{L^\infty(T)}
+\le
+C h_T^3
+\|u^{(3)}\|_{L^\infty(T)},
+}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\boxed{
+\|(u-I_hu)'\|_{L^\infty(T)}
+\le
+C h_T^2
+\|u^{(3)}\|_{L^\infty(T)}.
+}
+\]</span></p>
+<p>Thus,</p>
+<p><span class="math display">\[
+\boxed{
+P_2:
+\qquad
+u-I_hu=O(h_T^3),
+\qquad
+(u-I_hu)'=O(h_T^2).
+}
+\]</span></p>
+</section>
+</section>
+<section id="extension-to-two-dimensions" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Extension to two dimensions</h1>
+<div id="cell-fig-shape-regularity" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-shape-regularity" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-shape-regularity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="session3_files/figure-html/fig-shape-regularity-output-1.png" width="466" height="355" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-shape-regularity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Element diameter <span class="math inline">\(h_T\)</span> and inradius <span class="math inline">\(\rho_T\)</span> for a triangular element.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The same principle extends to a triangular element <span class="math inline">\(T\)</span>.</p>
+<p>There is, however, one additional ingredient in two dimensions: the <strong>shape of the element</strong>. Unlike in one dimension, two elements with the same size <span class="math inline">\(h_T\)</span> may have very different shapes.</p>
+<p>The constant <span class="math inline">\(C\)</span> appearing below is independent of <span class="math inline">\(h_T\)</span>, but may depend on the shape of the element. For a shape-regular family of meshes, for which</p>
+<p><span class="math display">\[
+\frac{h_T}{\rho_T}
+\le
+C_{\mathrm{shape}},
+\]</span></p>
+<p>with <span class="math inline">\(\rho_T\)</span> the inradius of the triangle, the constant <span class="math inline">\(C\)</span> remains uniformly bounded as the mesh is refined.</p>
+<p>For <span class="math inline">\(P_1\)</span> elements, affine functions are reproduced exactly. The first non-represented Taylor term therefore involves the Hessian</p>
+<p><span class="math display">\[
+D^2u.
+\]</span></p>
+<p>Without proof,</p>
+<p><span class="math display">\[
+\boxed{
+\|u-I_hu\|_{L^\infty(T)}
+\le
+C h_T^2
+\|D^2u\|_{L^\infty(T)},
+}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\boxed{
+\|\nabla(u-I_hu)\|_{L^\infty(T)}
+\le
+C h_T
+\|D^2u\|_{L^\infty(T)}.
+}
+\]</span></p>
+<p>For quadratic <span class="math inline">\(P_2\)</span> elements,</p>
+<p><span class="math display">\[
+\boxed{
+\|u-I_hu\|_{L^\infty(T)}
+\le
+C h_T^3
+\|D^3u\|_{L^\infty(T)},
+}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\boxed{
+\|\nabla(u-I_hu)\|_{L^\infty(T)}
+\le
+C h_T^2
+\|D^3u\|_{L^\infty(T)}.
+}
+\]</span></p>
+<p>The general pattern is</p>
+<p><span class="math display">\[
+\boxed{
+P_p
+\quad\Longrightarrow\quad
+\text{first non-represented Taylor term has order }p+1.
+}
+\]</span></p>
+</section>
+<section id="interpolation-error-versus-finite-element-error" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Interpolation error versus finite-element error</h1>
+<p>Two different errors must now be distinguished.</p>
+<p>The <strong>interpolation error</strong></p>
+<p><span class="math display">\[
+\boxed{
+e_I=u-I_hu
+}
+\]</span></p>
+<p>measures the approximation capability of the finite-element space.</p>
+<p>The <strong>finite-element error</strong></p>
+<p><span class="math display">\[
+\boxed{
+e_h=u-u_h
+}
+\]</span></p>
+<p>measures the error of the solution obtained by solving the discretized PDE.</p>
+<p>In general,</p>
+<p><span class="math display">\[
+I_hu\neq u_h.
+\]</span></p>
+<p>The interpolation estimates derived previously were expressed in the <span class="math inline">\(L^\infty\)</span> norm. For example, for <span class="math inline">\(P_1\)</span> elements,</p>
+<p><span class="math display">\[
+\|\nabla(u-I_hu)\|_{L^\infty(\Omega)}
+\le
+Ch\,\|D^2u\|_{L^\infty(\Omega)}.
+\]</span></p>
+<p>This estimate could already be used to control the error in an integral norm. Indeed,</p>
+<p><span class="math display">\[
+|u-I_hu|_{H^1(\Omega)}
+=
+\left(
+\int_\Omega
+|\nabla(u-I_hu)|^2\,d\Omega
+\right)^{1/2},
+\]</span></p>
+<p>so that</p>
+<p><span class="math display">\[
+|u-I_hu|_{H^1(\Omega)}
+\le
+|\Omega|^{1/2}
+\|\nabla(u-I_hu)\|_{L^\infty(\Omega)}.
+\]</span></p>
+<p>Hence,</p>
+<p><span class="math display">\[
+|u-I_hu|_{H^1(\Omega)}
+\le
+C h
+\|D^2u\|_{L^\infty(\Omega)}.
+\]</span></p>
+<p>This is a valid estimate, but it requires the second derivatives of <span class="math inline">\(u\)</span> to be bounded everywhere.</p>
+<p>A less restrictive and more natural result for finite-element analysis is obtained directly in Sobolev norms. For <span class="math inline">\(P_1\)</span> elements, the standard interpolation estimate is</p>
+<p><span class="math display">\[
+\boxed{
+|u-I_hu|_{H^1(\Omega)}
+\le
+C h
+|u|_{H^2(\Omega)}.
+}
+\]</span></p>
+<p>Here,</p>
+<p><span class="math display">\[
+|u|_{H^2(\Omega)}
+=
+\left(
+\int_\Omega |D^2u|^2\,d\Omega
+\right)^{1/2},
+\]</span></p>
+<p>so only square integrability of the second derivatives is required.</p>
+<p>Similarly, for <span class="math inline">\(P_2\)</span> elements,</p>
+<p><span class="math display">\[
+\boxed{
+|u-I_hu|_{H^1(\Omega)}
+\le
+C h^2
+|u|_{H^3(\Omega)}.
+}
+\]</span></p>
+<p>These are the Sobolev-norm counterparts of the interpolation estimates introduced previously.</p>
+<p>For the Poisson problem, the energy norm is</p>
+<p><span class="math display">\[
+\|v\|_a^2
+=
+a(v,v)
+=
+\int_\Omega |\nabla v|^2\,d\Omega,
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+\boxed{
+\|v\|_a
+=
+|v|_{H^1(\Omega)}.
+}
+\]</span></p>
+<p>Galerkin optimality gives</p>
+<p><span class="math display">\[
+\|u-u_h\|_a
+\le
+\|u-I_hu\|_a,
+\]</span></p>
+<p>and hence</p>
+<p><span class="math display">\[
+\boxed{
+|u-u_h|_{H^1(\Omega)}
+\le
+|u-I_hu|_{H^1(\Omega)}.
+}
+\]</span></p>
+<p>We can now combine Galerkin optimality with the interpolation estimates.</p>
+<p>For linear <span class="math inline">\(P_1\)</span> elements,</p>
+<p><span class="math display">\[
+|u-u_h|_{H^1(\Omega)}
+\le
+|u-I_hu|_{H^1(\Omega)}
+\le
+C h |u|_{H^2(\Omega)},
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+\boxed{
+|u-u_h|_{H^1}
+=
+O(h).
+}
+\]</span></p>
+<p>For quadratic <span class="math inline">\(P_2\)</span> elements,</p>
+<p><span class="math display">\[
+|u-u_h|_{H^1(\Omega)}
+\le
+|u-I_hu|_{H^1(\Omega)}
+\le
+C h^2 |u|_{H^3(\Omega)},
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+\boxed{
+|u-u_h|_{H^1}
+=
+O(h^2).
+}
+\]</span></p>
+<p>The convergence mechanism is therefore</p>
+<p><span class="math display">\[
+\boxed{
+\text{interpolation properties}
+\;+\;
+\text{Galerkin optimality}
+\;\Longrightarrow\;
+\text{finite-element convergence}.
+}
+\]</span></p>
+<p><strong>Recall: variable diffusion coefficient</strong></p>
+<p>Recall from Session 1 that for</p>
+<p><span class="math display">\[
+-\nabla\cdot(k(\mathbf x)\nabla u)=f,
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+0&lt;k_{\min}\le k(\mathbf x)\le k_{\max},
+\]</span></p>
+<p>the energy norm is</p>
+<p><span class="math display">\[
+\|v\|_a^2
+=
+\int_\Omega
+k(\mathbf x)|\nabla v|^2\,d\Omega,
+\]</span></p>
+<p>and satisfies</p>
+<p><span class="math display">\[
+\sqrt{k_{\min}}\,|v|_{H^1}
+\le
+\|v\|_a
+\le
+\sqrt{k_{\max}}\,|v|_{H^1}.
+\]</span></p>
+<p>Galerkin optimality therefore gives</p>
+<p><span class="math display">\[
+|u-u_h|_{H^1}
+\le
+\sqrt{\frac{k_{\max}}{k_{\min}}}
+\,|u-I_hu|_{H^1}.
+\]</span></p>
+<p>For <span class="math inline">\(P_1\)</span> elements,</p>
+<p><span class="math display">\[
+|u-I_hu|_{H^1(\Omega)}
+\le
+C_{\mathrm{int}}\,h\,|u|_{H^2(\Omega)},
+\]</span></p>
+<p>so</p>
+<p><span class="math display">\[
+\boxed{
+|u-u_h|_{H^1(\Omega)}
+\le
+C_{\mathrm{int}}
+\sqrt{\frac{k_{\max}}{k_{\min}}}
+\,h\,|u|_{H^2(\Omega)}.
+}
+\]</span></p>
+<p>Thus, in the usual notation</p>
+<p><span class="math display">\[
+|u-u_h|_{H^1(\Omega)}
+\le
+C\,h\,|u|_{H^2(\Omega)},
+\]</span></p>
+<p>the constant <span class="math inline">\(C\)</span> now depends not only on the interpolation properties of the mesh, but also on the diffusion contrast <span class="math inline">\(k_{\max}/k_{\min}\)</span>.</p>
+<section id="error-in-the-solution-itself-the-l2-norm" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="error-in-the-solution-itself-the-l2-norm"><span class="header-section-number">6.1</span> Error in the solution itself: the <span class="math inline">\(L^2\)</span> norm</h2>
+<p>The energy estimate controls the error in the gradient:</p>
+<p><span class="math display">\[
+|u-u_h|_{H^1(\Omega)}.
+\]</span></p>
+<p>A sharper estimate can also be obtained for the error in the solution itself, measured in the <span class="math inline">\(L^2\)</span> norm.</p>
+<p>For sufficiently regular elliptic problems,</p>
+<p><span class="math display">\[
+\boxed{
+P_1:
+\qquad
+\|u-u_h\|_{L^2(\Omega)}
+\le
+C h^2 |u|_{H^2(\Omega)},
+}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\boxed{
+P_2:
+\qquad
+\|u-u_h\|_{L^2(\Omega)}
+\le
+C h^3 |u|_{H^3(\Omega)}.
+}
+\]</span></p>
+<p>Thus,</p>
+<p><span class="math display">\[
+\boxed{
+\begin{array}{c|cc}
+&amp; H^1\text{ error} &amp; L^2\text{ error} \\
+\hline
+P_1 &amp; O(h) &amp; O(h^2) \\
+P_2 &amp; O(h^2) &amp; O(h^3)
+\end{array}
+}
+\]</span></p>
+<p>The <span class="math inline">\(L^2\)</span> error therefore converges one order faster than the <span class="math inline">\(H^1\)</span> error.</p>
+<p>This improved estimate is obtained through a duality argument (Aubin–Nitsche), which is not developed here.</p>
+</section>
+</section>
+<section id="interpreting-a-convergence-rate" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Interpreting a convergence rate</h1>
+<p>Suppose that</p>
+<p><span class="math display">\[
+e(h)
+\approx
+C h^p.
+\]</span></p>
+<p>Taking logarithms,</p>
+<p><span class="math display">\[
+\log e
+=
+\log C
++
+p\log h.
+\]</span></p>
+<p>Therefore, on a log-log plot of error versus mesh size, the convergence rate <span class="math inline">\(p\)</span> is the slope:</p>
+<p><span class="math display">\[
+\boxed{
+p
+=
+\frac{
+\log(e_2/e_1)
+}{
+\log(h_2/h_1)
+}.
+}
+\]</span></p>
+<p>For example, if</p>
+<p><span class="math display">\[
+h_2=\frac{h_1}{2},
+\]</span></p>
+<p>then an <span class="math inline">\(O(h)\)</span> error is approximately divided by two, whereas an <span class="math inline">\(O(h^2)\)</span> error is approximately divided by four.</p>
+</section>
+<section id="solution-regularity-and-convergence-rate" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Solution regularity and convergence rate</h1>
+<p>The convergence rates obtained above assume that the exact solution has sufficient regularity.</p>
+<p>For <span class="math inline">\(P_1\)</span> elements, the estimate</p>
+<p><span class="math display">\[
+|u-u_h|_{H^1}
+\le
+C h |u|_{H^2}
+\]</span></p>
+<p>requires</p>
+<p><span class="math display">\[
+u\in H^2(\Omega).
+\]</span></p>
+<p>For <span class="math inline">\(P_2\)</span> elements, the optimal estimate</p>
+<p><span class="math display">\[
+|u-u_h|_{H^1}
+\le
+C h^2 |u|_{H^3}
+\]</span></p>
+<p>requires</p>
+<p><span class="math display">\[
+u\in H^3(\Omega).
+\]</span></p>
+<p>The polynomial degree alone therefore does not determine the convergence rate: the exact solution must also possess the corresponding regularity.</p>
+<p>For example, if the solution is less regular and only satisfies</p>
+<p><span class="math display">\[
+u\in H^{1+s}(\Omega),
+\qquad
+0&lt;s&lt;1,
+\]</span></p>
+<p>then a <span class="math inline">\(P_1\)</span> approximation generally gives only</p>
+<p><span class="math display">\[
+\boxed{
+|u-u_h|_{H^1}
+=
+O(h^s),
+}
+\]</span></p>
+<p>rather than <span class="math inline">\(O(h)\)</span>.</p>
+<p>Typical causes of reduced regularity include:</p>
+<ul>
+<li>re-entrant corners;</li>
+<li>geometric singularities;</li>
+<li>discontinuous coefficients;</li>
+<li>singular or strongly localized loading.</li>
+</ul>
+<p>Thus,</p>
+<p><span class="math display">\[
+\boxed{
+\text{high polynomial order alone does not guarantee a high convergence rate}.
+}
+\]</span></p>
+</section>
+<section id="mesh-quality-and-shape-regularity" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Mesh quality and shape regularity</h1>
+<p>As seen in the two-dimensional interpolation estimates, mesh refinement must preserve element shape as well as reduce the element size.</p>
+<p>Shape regularity ensures that the constants appearing in the interpolation estimates remain uniformly bounded as <span class="math inline">\(h\rightarrow 0\)</span>.</p>
+<p>This has an important practical consequence: reducing the diameter of an element does not necessarily improve the approximation if the element becomes increasingly distorted at the same time.</p>
+<p>Mesh quality also affects the algebraic problem.</p>
+<p>For <span class="math inline">\(P_1\)</span> triangles, the gradients of the local shape functions are constant inside each element. As an element becomes increasingly flat or degenerate, these gradients can become very large.</p>
+<p>Since the elemental stiffness matrix contains terms of the form</p>
+<p><span class="math display">\[
+K^{(T)}_{ab}
+=
+\int_T
+\nabla N_a\cdot\nabla N_b\,d\Omega,
+\]</span></p>
+<p>strong element distortion can therefore deteriorate the conditioning of the global stiffness matrix.</p>
+<p>Thus, mesh quality affects both</p>
+<p><span class="math display">\[
+\boxed{
+\begin{array}{c}
+\text{approximation accuracy}\\
+\text{and}\\
+\text{algebraic conditioning}.
+\end{array}
+}
+\]</span></p>
+</section>
+<section id="convergence-and-number-of-unknowns" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Convergence and number of unknowns</h1>
+<p>For a quasi-uniform mesh in spatial dimension <span class="math inline">\(d\)</span>, the number of degrees of freedom for fixed-order finite elements scales approximately as</p>
+<p><span class="math display">\[
+\boxed{
+N_{\mathrm{dof}}
+\sim
+h^{-d}.
+}
+\]</span></p>
+<p>Equivalently,</p>
+<p><span class="math display">\[
+\boxed{
+h
+\sim
+N_{\mathrm{dof}}^{-1/d}.
+}
+\]</span></p>
+<p>Thus,</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Spatial dimension</th>
+<th style="text-align: right;">Degrees of freedom</th>
+<th style="text-align: right;">Mesh size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1D</td>
+<td style="text-align: right;"><span class="math inline">\(N_{\mathrm{dof}}\sim h^{-1}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(h\sim N_{\mathrm{dof}}^{-1}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2D</td>
+<td style="text-align: right;"><span class="math inline">\(N_{\mathrm{dof}}\sim h^{-2}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(h\sim N_{\mathrm{dof}}^{-1/2}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3D</td>
+<td style="text-align: right;"><span class="math inline">\(N_{\mathrm{dof}}\sim h^{-3}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(h\sim N_{\mathrm{dof}}^{-1/3}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Reducing the mesh size by a factor of two therefore multiplies the number of degrees of freedom approximately by</p>
+<p><span class="math display">\[
+\boxed{
+2^d.
+}
+\]</span></p>
+<p>That is, by a factor of <span class="math inline">\(2\)</span> in 1D, <span class="math inline">\(4\)</span> in 2D, and <span class="math inline">\(8\)</span> in 3D.</p>
+<p>This relation allows convergence rates expressed in terms of <span class="math inline">\(h\)</span> to be translated into convergence rates in terms of the size of the algebraic problem.</p>
+<p>For <span class="math inline">\(P_1\)</span> elements,</p>
+<p><span class="math display">\[
+|u-u_h|_{H^1}
+=
+O(h),
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+\boxed{
+|u-u_h|_{H^1}
+=
+O\left(
+N_{\mathrm{dof}}^{-1/d}
+\right).
+}
+\]</span></p>
+<p>For sufficiently regular problems,</p>
+<p><span class="math display">\[
+\|u-u_h\|_{L^2}
+=
+O(h^2),
+\]</span></p>
+<p>so</p>
+<p><span class="math display">\[
+\boxed{
+\|u-u_h\|_{L^2}
+=
+O\left(
+N_{\mathrm{dof}}^{-2/d}
+\right).
+}
+\]</span></p>
+<p>More generally, for <span class="math inline">\(P_p\)</span> elements and sufficiently regular solutions,</p>
+<p><span class="math display">\[
+\boxed{
+|u-u_h|_{H^1}
+=
+O\left(
+N_{\mathrm{dof}}^{-p/d}
+\right),
+}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\boxed{
+\|u-u_h\|_{L^2}
+=
+O\left(
+N_{\mathrm{dof}}^{-(p+1)/d}
+\right).
+}
+\]</span></p>
+<p>The same convergence rate with respect to <span class="math inline">\(h\)</span> therefore requires increasingly many degrees of freedom as the spatial dimension increases.</p>
+<section id="conditioning-of-the-stiffness-matrix" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="conditioning-of-the-stiffness-matrix"><span class="header-section-number">10.1</span> Conditioning of the stiffness matrix</h2>
+<p>For the Poisson problem, after application of Dirichlet boundary conditions,</p>
+<p><span class="math display">\[
+KU=F
+\]</span></p>
+<p>has a symmetric positive-definite stiffness matrix <span class="math inline">\(K\)</span>.</p>
+<p>Its spectral condition number is</p>
+<p><span class="math display">\[
+\boxed{
+\kappa_2(K)
+=
+\frac{\lambda_{\max}(K)}
+{\lambda_{\min}(K)}.
+}
+\]</span></p>
+<p>The condition number measures how sensitive the algebraic system is to perturbations and numerical errors. It also plays an important role in the convergence of iterative solvers.</p>
+<p>For fixed-order finite elements on a quasi-uniform, shape-regular family of meshes, the standard scaling for the Poisson stiffness matrix is</p>
+<p><span class="math display">\[
+\boxed{
+\kappa_2(K)
+=
+O(h^{-2}).
+}
+\]</span></p>
+<p>This scaling is essentially independent of the spatial dimension. Therefore,</p>
+<p><span class="math display">\[
+h\downarrow
+\qquad\Longrightarrow\qquad
+\kappa_2(K)\uparrow.
+\]</span></p>
+<p>Using the relation established above,</p>
+<p><span class="math display">\[
+N_{\mathrm{dof}}
+\sim
+h^{-d},
+\]</span></p>
+<p>we have</p>
+<p><span class="math display">\[
+h^{-2}
+\sim
+N_{\mathrm{dof}}^{2/d},
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+\boxed{
+\kappa_2(K)
+=
+O\left(
+N_{\mathrm{dof}}^{2/d}
+\right).
+}
+\]</span></p>
+<p>In particular,</p>
+<p><span class="math display">\[
+\boxed{
+\kappa_2(K)
+\sim
+\begin{cases}
+O(N_{\mathrm{dof}}^2), &amp; d=1,\\[1mm]
+O(N_{\mathrm{dof}}), &amp; d=2,\\[1mm]
+O(N_{\mathrm{dof}}^{2/3}), &amp; d=3.
+\end{cases}
+}
+\]</span></p>
+<p>Thus, mesh refinement improves the approximation but simultaneously makes the unpreconditioned algebraic system increasingly ill-conditioned.</p>
+<p>The <span class="math inline">\(h^{-2}\)</span> scaling assumes a quasi-uniform, shape-regular mesh family. Strongly distorted or highly graded meshes may lead to significantly worse conditioning.</p>
+</section>
+</section>
+<section id="linear-algebra-and-computational-cost" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Linear algebra and computational cost</h1>
+<section id="assemnly-cost" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="assemnly-cost"><span class="header-section-number">11.1</span> Assemnly cost</h2>
+<p>The finite-element discretization produces a sparse linear system</p>
+<p><span class="math display">\[
+KU=F.
+\]</span></p>
+<p>For fixed-order finite elements on a shape-regular mesh, each degree of freedom interacts only with a limited number of neighboring degrees of freedom.</p>
+<p>The number of non-zero entries in the stiffness matrix therefore scales as</p>
+<p><span class="math display">\[
+\boxed{
+\operatorname{nnz}(K)
+=
+O(N_{\mathrm{dof}}).
+}
+\]</span></p>
+<p>Since each element contributes a fixed-size elemental matrix, the assembly cost also scales approximately as</p>
+<p><span class="math display">\[
+\boxed{
+T_{\mathrm{assembly}}
+=
+O(N_{\mathrm{dof}}).
+}
+\]</span></p>
+<p>These estimates hold in any spatial dimension for fixed polynomial order.</p>
+</section>
+<section id="dense-versus-sparse-direct-solvers" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="dense-versus-sparse-direct-solvers"><span class="header-section-number">11.2</span> Dense versus sparse direct solvers</h2>
+<p>If the stiffness matrix were treated as a dense matrix, a direct factorization would require approximately</p>
+<p><span class="math display">\[
+O(N_{\mathrm{dof}}^3)
+\]</span></p>
+<p>operations and</p>
+<p><span class="math display">\[
+O(N_{\mathrm{dof}}^2)
+\]</span></p>
+<p>memory.</p>
+<p>This would completely ignore the sparse structure generated by the finite-element method.</p>
+<p>Before factorization, a fixed-order finite-element stiffness matrix contains only</p>
+<p><span class="math display">\[
+\operatorname{nnz}(K)=O(N_{\mathrm{dof}})
+\]</span></p>
+<p>non-zero entries.</p>
+<p>Sparse direct solvers exploit this structure. During factorization, however, additional non-zero entries are created. This phenomenon is called <strong>fill-in</strong>.</p>
+<p>With an appropriate ordering of the degrees of freedom (nested dissection), the classical complexity estimates for elliptic problems on regular meshes are approximately</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Spatial dimension</th>
+<th style="text-align: right;">Factorization cost</th>
+<th style="text-align: right;">Memory</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1D</td>
+<td style="text-align: right;"><span class="math inline">\(O(N_{\mathrm{dof}})\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(O(N_{\mathrm{dof}})\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2D</td>
+<td style="text-align: right;"><span class="math inline">\(O(N_{\mathrm{dof}}^{3/2})\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(O(N_{\mathrm{dof}}\log N_{\mathrm{dof}})\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3D</td>
+<td style="text-align: right;"><span class="math inline">\(O(N_{\mathrm{dof}}^2)\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(O(N_{\mathrm{dof}}^{4/3})\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Thus, although the original finite-element matrix contains only <span class="math inline">\(O(N_{\mathrm{dof}})\)</span> non-zero entries, its factors may require substantially more storage because of fill-in.</p>
+<p>The difference between two and three dimensions can be understood from the geometry of sparse elimination.</p>
+<p>A suitable ordering eliminates interior degrees of freedom first, as part of the factorization of the complete matrix. The remaining degrees of freedom lie on an interface, called a <strong>separator</strong>. The same idea is applied recursively inside the subdomains.</p>
+<p>In 2D, the separator is approximately a line. Since</p>
+<p><span class="math display">\[
+N_{\mathrm{dof}}\sim h^{-2},
+\]</span></p>
+<p>it contains approximately</p>
+<p><span class="math display">\[
+O(h^{-1})
+=
+O(N_{\mathrm{dof}}^{1/2})
+\]</span></p>
+<p>degrees of freedom.</p>
+<p>Eliminating the interior creates additional couplings between the separator unknowns, so that the corresponding block becomes essentially dense. Its factorization costs approximately</p>
+<p><span class="math display">\[
+O\left((N_{\mathrm{dof}}^{1/2})^3\right)
+=
+\boxed{O(N_{\mathrm{dof}}^{3/2})}.
+\]</span></p>
+<p>In 3D, the separator is approximately a surface. Since</p>
+<p><span class="math display">\[
+N_{\mathrm{dof}}\sim h^{-3},
+\]</span></p>
+<p>it contains approximately</p>
+<p><span class="math display">\[
+O(h^{-2})
+=
+O(N_{\mathrm{dof}}^{2/3})
+\]</span></p>
+<p>degrees of freedom. The corresponding factorization cost is therefore</p>
+<p><span class="math display">\[
+O\left((N_{\mathrm{dof}}^{2/3})^3\right)
+=
+\boxed{O(N_{\mathrm{dof}}^2)}.
+\]</span></p>
+<p>The recursive elimination of the subdomains does not change these leading-order estimates.</p>
+<p>The much faster increase in both computational cost and memory consumption in 3D is one of the main limitations of sparse direct solvers for large finite-element problems.</p>
+</section>
+</section>
+<section id="accuracy-and-computational-cost" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> Accuracy and computational cost</h1>
+<p>Mesh refinement has several simultaneous consequences:</p>
+<p><span class="math display">\[
+\boxed{
+h\downarrow
+\quad\Longrightarrow\quad
+\begin{cases}
+\text{smaller discretization error},\\
+\text{larger }N_{\mathrm{dof}},\\
+\text{larger condition number},\\
+\text{larger computational cost}.
+\end{cases}
+}
+\]</span></p>
+<p>The finite-element method therefore involves a compromise between approximation accuracy and computational cost.</p>
+<p>The polynomial order, spatial dimension, solution regularity, mesh quality, and linear solver all contribute to this compromise.</p>
+</section>
+<section id="convergence-study" class="level1" data-number="13">
+<h1 data-number="13"><span class="header-section-number">13</span> Convergence study</h1>
+<p>We return to the Poisson problem on the square with a circular hole introduced in Session 2 and study how the <span class="math inline">\(P_1\)</span> finite-element solution changes under mesh refinement.</p>
+<p>A very fine <span class="math inline">\(P_1\)</span> solution is first computed and used as a <strong>numerical reference</strong> solution. This reference is not exact; it is simply much more resolved than the solutions used in the refinement study.</p>
+<p>The problem is then solved on a sequence of increasingly fine meshes. For each mesh, we measure</p>
+<ul>
+<li>the mesh size <span class="math inline">\(h\)</span>;</li>
+<li>the relative <span class="math inline">\(L^2\)</span> error with respect to the numerical reference;</li>
+<li>the assembly and sparse-solve times.</li>
+</ul>
+<p>Two representative finite-element solutions are shown together with the reference solution before examining the convergence rate and computational cost.</p>
+<div id="9901563b" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-stdout">
+<pre><code>Computing numerical reference solution (N_ref=256)...</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="session3_files/figure-html/cell-4-output-2.png" width="1025" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+L2 convergence rate = 2.08</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="session3_files/figure-html/cell-4-output-4.png" width="527" height="435" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Assembly scaling = N_dof^1.05
+Solve scaling    = N_dof^0.92
+Total scaling    = N_dof^1.04</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="session3_files/figure-html/cell-4-output-6.png" width="525" height="433" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+   N       h       nodes    elements   rel. L2 error   assembly [s]   solve [s]   total [s]
+--------------------------------------------------------------------------------------
+   8    0.1560       100        158   8.124e-03       6.561e-03   7.237e-04   7.284e-03
+  12    0.1072       196        330   4.217e-03       1.356e-02   8.169e-04   1.438e-02
+  16    0.0853       336        589   2.256e-03       2.339e-02   1.114e-03   2.451e-02
+  24    0.0531       706       1288   1.028e-03       5.125e-02   1.964e-03   5.321e-02
+  32    0.0406      1207       2249   5.873e-04       8.980e-02   3.355e-03   9.315e-02
+  48    0.0288      2584       4921   2.594e-04       1.929e-01   7.003e-03   2.000e-01
+  64    0.0210      4510       8691   1.422e-04       3.498e-01   1.321e-02   3.631e-01
+  96    0.0148      9942      19391   5.857e-05       9.230e-01   3.705e-02   9.600e-01
+ 128    0.0101     17483      34309   2.902e-05       1.364e+00   6.901e-02   1.433e+00</code></pre>
+</div>
+</div>
+<p>The two coarse solutions illustrate how the finite-element field approaches the fine numerical reference as the mesh is refined. The log-log error plot then tests the expected <span class="math inline">\(P_1\)</span> rate</p>
+<p><span class="math display">\[
+\|u-u_h\|_{L^2(\Omega)}=O(h^2),
+\]</span></p>
+<p>while the timing plot connects mesh refinement to the computational cost of assembly and of the sparse direct solve.</p>
+</section>
+<section id="summary" class="level1" data-number="14">
+<h1 data-number="14"><span class="header-section-number">14</span> Summary</h1>
+<p>For <span class="math inline">\(P_1\)</span> elements,</p>
+<p><span class="math display">\[
+\boxed{
+\|u-I_hu\|_{L^\infty}
+=
+O(h^2),
+\qquad
+\|\nabla(u-I_hu)\|_{L^\infty}
+=
+O(h),
+}
+\]</span></p>
+<p>and, for sufficiently regular solutions,</p>
+<p><span class="math display">\[
+\boxed{
+|u-u_h|_{H^1}
+=
+O(h),
+\qquad
+\|u-u_h\|_{L^2}
+=
+O(h^2).
+}
+\]</span></p>
+<p>For <span class="math inline">\(P_2\)</span> elements,</p>
+<p><span class="math display">\[
+\boxed{
+\|u-I_hu\|_{L^\infty}
+=
+O(h^3),
+\qquad
+\|\nabla(u-I_hu)\|_{L^\infty}
+=
+O(h^2),
+}
+\]</span></p>
+<p>and, for sufficiently regular solutions,</p>
+<p><span class="math display">\[
+\boxed{
+|u-u_h|_{H^1}
+=
+O(h^2),
+\qquad
+\|u-u_h\|_{L^2}
+=
+O(h^3).
+}
+\]</span></p>
+<p>The complete chain is</p>
+<p><span class="math display">\[
+\boxed{
+\text{polynomial approximation}
+\rightarrow
+\text{interpolation error}
+\rightarrow
+\text{Galerkin optimality}
+\rightarrow
+\text{FEM error}.
+}
+\]</span></p>
+<p>The theoretical rates additionally require</p>
+<p><span class="math display">\[
+\boxed{
+\text{sufficient solution regularity}
++
+\text{a shape-regular mesh family}.
+}
+\]</span></p>
+<p>Finally, in two dimensions,</p>
+<p><span class="math display">\[
+N_{\mathrm{dof}}
+\sim
+h^{-2},
+\qquad
+\kappa_2(K)
+\sim
+h^{-2},
+\]</span></p>
+<p>which links mesh refinement, accuracy, conditioning, and computational cost.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/kerfriden\.github\.io\/fem-quarto\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

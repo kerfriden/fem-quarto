@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Session 2 — Construction of the finite element method – Introduction to the Finite Element Method</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-7dd2c24e40fa7e13410559080ea32b90.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./session2.html">Session 2 — The finite element method</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Introduction to the Finite Element Method</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./session1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Session 1 — The Galerkin method for diffusion problems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./session2.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Session 2 — The finite element method</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./session3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Session 3 — Analysis of the finite element method</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#schedule" id="toc-schedule" class="nav-link" data-scroll-target="#schedule">Schedule</a></li>
+  <li><a href="#finite-element-mesh" id="toc-finite-element-mesh" class="nav-link" data-scroll-target="#finite-element-mesh"><span class="header-section-number">1</span> Finite-element mesh</a></li>
+  <li><a href="#p_1-finite-elements-and-shape-functions" id="toc-p_1-finite-elements-and-shape-functions" class="nav-link" data-scroll-target="#p_1-finite-elements-and-shape-functions"><span class="header-section-number">2</span> <span class="math inline">\(P_1\)</span> finite elements and shape functions</a>
+  <ul class="collapse">
+  <li><a href="#shape-functions-on-one-physical-triangle" id="toc-shape-functions-on-one-physical-triangle" class="nav-link" data-scroll-target="#shape-functions-on-one-physical-triangle"><span class="header-section-number">2.1</span> Shape functions on one physical triangle</a></li>
+  <li><a href="#global-basis-functions-with-local-support" id="toc-global-basis-functions-with-local-support" class="nav-link" data-scroll-target="#global-basis-functions-with-local-support"><span class="header-section-number">2.2</span> Global basis functions with local support</a></li>
+  </ul></li>
+  <li><a href="#from-the-global-galerkin-matrix-to-element-contributions" id="toc-from-the-global-galerkin-matrix-to-element-contributions" class="nav-link" data-scroll-target="#from-the-global-galerkin-matrix-to-element-contributions"><span class="header-section-number">3</span> From the global Galerkin matrix to element contributions</a>
+  <ul class="collapse">
+  <li><a href="#local-contributions-on-one-element" id="toc-local-contributions-on-one-element" class="nav-link" data-scroll-target="#local-contributions-on-one-element"><span class="header-section-number">3.1</span> Local contributions on one element</a></li>
+  <li><a href="#particular-case-a-p_1-triangle" id="toc-particular-case-a-p_1-triangle" class="nav-link" data-scroll-target="#particular-case-a-p_1-triangle"><span class="header-section-number">3.2</span> Particular case: a <span class="math inline">\(P_1\)</span> triangle</a></li>
+  </ul></li>
+  <li><a href="#from-local-to-global-assembly" id="toc-from-local-to-global-assembly" class="nav-link" data-scroll-target="#from-local-to-global-assembly"><span class="header-section-number">4</span> From local to global: assembly</a></li>
+  <li><a href="#local-support-and-sparsity" id="toc-local-support-and-sparsity" class="nav-link" data-scroll-target="#local-support-and-sparsity"><span class="header-section-number">5</span> Local support and sparsity</a></li>
+  <li><a href="#dirichlet-boundary-conditions" id="toc-dirichlet-boundary-conditions" class="nav-link" data-scroll-target="#dirichlet-boundary-conditions"><span class="header-section-number">6</span> Dirichlet boundary conditions</a>
+  <ul class="collapse">
+  <li><a href="#homogeneous-dirichlet-conditions" id="toc-homogeneous-dirichlet-conditions" class="nav-link" data-scroll-target="#homogeneous-dirichlet-conditions"><span class="header-section-number">6.1</span> Homogeneous Dirichlet conditions</a></li>
+  <li><a href="#non-homogeneous-dirichlet-conditions" id="toc-non-homogeneous-dirichlet-conditions" class="nav-link" data-scroll-target="#non-homogeneous-dirichlet-conditions"><span class="header-section-number">6.2</span> Non-homogeneous Dirichlet conditions</a></li>
+  </ul></li>
+  <li><a href="#beyond-p_1-quadratic-p_2-triangles" id="toc-beyond-p_1-quadratic-p_2-triangles" class="nav-link" data-scroll-target="#beyond-p_1-quadratic-p_2-triangles"><span class="header-section-number">7</span> Beyond <span class="math inline">\(P_1\)</span>: quadratic <span class="math inline">\(P_2\)</span> triangles</a></li>
+  <li><a href="#why-numerical-integration-becomes-useful" id="toc-why-numerical-integration-becomes-useful" class="nav-link" data-scroll-target="#why-numerical-integration-becomes-useful"><span class="header-section-number">8</span> Why numerical integration becomes useful</a></li>
+  <li><a href="#reference-elements-mappings-and-isoparametric-geometry" id="toc-reference-elements-mappings-and-isoparametric-geometry" class="nav-link" data-scroll-target="#reference-elements-mappings-and-isoparametric-geometry"><span class="header-section-number">9</span> Reference elements, mappings, and isoparametric geometry</a>
+  <ul class="collapse">
+  <li><a href="#p_1-and-p_2-on-the-reference-triangle" id="toc-p_1-and-p_2-on-the-reference-triangle" class="nav-link" data-scroll-target="#p_1-and-p_2-on-the-reference-triangle"><span class="header-section-number">9.1</span> <span class="math inline">\(P_1\)</span> and <span class="math inline">\(P_2\)</span> on the reference triangle</a></li>
+  <li><a href="#isoparametric-mapping-to-a-physical-element" id="toc-isoparametric-mapping-to-a-physical-element" class="nav-link" data-scroll-target="#isoparametric-mapping-to-a-physical-element"><span class="header-section-number">9.2</span> Isoparametric mapping to a physical element</a>
+  <ul class="collapse">
+  <li><a href="#p_1-the-affine-case" id="toc-p_1-the-affine-case" class="nav-link" data-scroll-target="#p_1-the-affine-case"><span class="header-section-number">9.2.1</span> <span class="math inline">\(P_1\)</span>: the affine case</a></li>
+  <li><a href="#p_2-straight-and-curved-geometry" id="toc-p_2-straight-and-curved-geometry" class="nav-link" data-scroll-target="#p_2-straight-and-curved-geometry"><span class="header-section-number">9.2.2</span> <span class="math inline">\(P_2\)</span>: straight and curved geometry</a></li>
+  </ul></li>
+  <li><a href="#jacobian-and-transformation-of-gradients" id="toc-jacobian-and-transformation-of-gradients" class="nav-link" data-scroll-target="#jacobian-and-transformation-of-gradients"><span class="header-section-number">9.3</span> Jacobian and transformation of gradients</a></li>
+  </ul></li>
+  <li><a href="#numerical-quadrature-in-practice" id="toc-numerical-quadrature-in-practice" class="nav-link" data-scroll-target="#numerical-quadrature-in-practice"><span class="header-section-number">10</span> Numerical quadrature in practice</a></li>
+  <li><a href="#practical-finite-element-algorithm" id="toc-practical-finite-element-algorithm" class="nav-link" data-scroll-target="#practical-finite-element-algorithm"><span class="header-section-number">11</span> Practical finite-element algorithm</a></li>
+  <li><a href="#example-poisson-equation-on-a-square-with-a-hole" id="toc-example-poisson-equation-on-a-square-with-a-hole" class="nav-link" data-scroll-target="#example-poisson-equation-on-a-square-with-a-hole"><span class="header-section-number">12</span> Example: Poisson equation on a square with a hole</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Session 2 — Construction of the finite element method</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="learning-objectives">Learning objectives</h2>
+<p>By the end of this session, students should be able to:</p>
+<ul>
+<li>explain how a mesh is used to construct a finite-element approximation space;</li>
+<li>construct and interpret <span class="math inline">\(P_1\)</span> and <span class="math inline">\(P_2\)</span> triangular finite elements;</li>
+<li>derive element contributions and explain their assembly into the global system;</li>
+<li>relate local support of finite-element basis functions to matrix sparsity;</li>
+<li>impose Dirichlet boundary conditions in the discrete problem;</li>
+<li>use reference elements, mappings, and numerical quadrature to compute element matrices;</li>
+<li>explain how isoparametric elements can represent curved geometries.</li>
+</ul>
+</section>
+<section id="schedule" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="schedule">Schedule</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Time</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0–10 min</td>
+<td>Finite-element meshes</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10–25 min</td>
+<td><span class="math inline">\(P_1\)</span> elements and shape functions</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25–45 min</td>
+<td>Element contributions and assembly</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">45–55 min</td>
+<td>Local support, sparsity, and boundary conditions</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">55–65 min</td>
+<td>Quadratic <span class="math inline">\(P_2\)</span> elements</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">65–80 min</td>
+<td>Reference elements and isoparametric mappings</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">80–88 min</td>
+<td>Numerical quadrature</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">88–90 min</td>
+<td>Finite-element algorithm and summary</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="finite-element-mesh" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Finite-element mesh</h1>
+<p>The finite-element method starts from a <strong>tessellation of the computational domain</strong> into non-overlapping elements.</p>
+<p>In two dimensions, we consider here triangular meshes,</p>
+<p><span class="math display">\[
+\boxed{
+\Omega_h
+=
+\bigcup_{T\in\mathcal T_h} T,
+}
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+\mathcal T_h
+=
+\{T_1,T_2,\ldots,T_{N_e}\}
+\]</span></p>
+<p>is the set of mesh elements.</p>
+<p>As an example, we consider a square domain containing a circular hole and generate a triangular mesh using Gmsh.</p>
+<p>Strictly speaking, when straight-sided triangles are used to represent a curved boundary, the mesh defines a polygonal domain <span class="math inline">\(\Omega_h\)</span> that approximates the exact geometry <span class="math inline">\(\Omega\)</span>. In this introductory course, we purposedly ignore this geometric approximation and identify the computational domain with the physical domain:</p>
+<p><span class="math display">\[
+\boxed{
+\Omega_h \equiv \Omega.
+}
+\]</span></p>
+<p>The treatment of curved geometries will be revisited later when introducing quadratic and isoparametric elements.</p>
+<div id="2261d9d1" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="session2_files/figure-html/cell-2-output-1.png" width="512" height="504" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The mesh is represented computationally by</p>
+<ul>
+<li>the coordinates of the nodes, <span class="math inline">\(\mathbf{x}_i\)</span>;</li>
+<li>the element connectivity, which specifies which nodes belong to each element.</li>
+</ul>
+<p>For a triangular element <span class="math inline">\(T\)</span>, if its three vertices are the nodes <span class="math inline">\(\mathbf{x}_{i_1}\)</span>, <span class="math inline">\(\mathbf{x}_{i_2}\)</span>, and <span class="math inline">\(\mathbf{x}_{i_3}\)</span>, then the associated connectivity is the index triplet <span class="math inline">\((i_1,i_2,i_3)\)</span>.</p>
+<p>For each element,</p>
+<p><span class="math display">\[
+h_T
+=
+\operatorname{diam}(T)
+=
+\max_{\mathbf x,\mathbf y\in T}
+|\mathbf x-\mathbf y|,
+\]</span></p>
+<p>and the global mesh size is</p>
+<p><span class="math display">\[
+\boxed{
+h
+=
+\max_{T\in\mathcal T_h} h_T.
+}
+\]</span></p>
+<p>The parameter <span class="math inline">\(h\)</span> characterizes the spatial resolution of the mesh and will be used in Session 3 to study refinement and convergence.</p>
+</section>
+<section id="p_1-finite-elements-and-shape-functions" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> <span class="math inline">\(P_1\)</span> finite elements and shape functions</h1>
+<div id="cell-fig-p1-local-shape-functions" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-p1-local-shape-functions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-p1-local-shape-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="session2_files/figure-html/fig-p1-local-shape-functions-output-1.png" width="1130" height="391" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-p1-local-shape-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The three local <span class="math inline">\(P_1\)</span> shape functions on a physical triangular element. The orange triangle represents the element <span class="math inline">\(T\)</span> and the blue surface represents the graph of <span class="math inline">\(N_a\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>For the mesh above, we first consider <strong>linear triangular finite elements</strong>, usually denoted <span class="math inline">\(P_1\)</span> elements.</p>
+<p>The notation</p>
+<p><span class="math display">\[
+v_h|_T\in\mathbb P_1(T)
+\]</span></p>
+<p>means that <span class="math inline">\(v_h\)</span> is <strong>affine on each triangle</strong>:</p>
+<p><span class="math display">\[
+v_h|_T(x,y)=a+bx+cy.
+\]</span></p>
+<p>A continuous <span class="math inline">\(P_1\)</span> finite-element space is therefore</p>
+<p><span class="math display">\[
+\boxed{
+V_h
+=
+\left\{
+v_h\in C^0(\Omega):
+v_h|_T\in\mathbb P_1(T)
+\quad
+\forall T\in\mathcal T_h
+\right\}.
+}
+\]</span></p>
+<p>Thus a <span class="math inline">\(P_1\)</span> finite-element function is</p>
+<ul>
+<li>affine on each individual triangle;</li>
+<li>continuous across element edges.</li>
+</ul>
+<section id="shape-functions-on-one-physical-triangle" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="shape-functions-on-one-physical-triangle"><span class="header-section-number">2.1</span> Shape functions on one physical triangle</h2>
+<p>Consider one physical triangle</p>
+<p><span class="math display">\[
+T
+=
+\operatorname{conv}
+\{\mathbf x_1,\mathbf x_2,\mathbf x_3\},
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+\mathbf x_a=(x_a,y_a),
+\qquad a=1,2,3.
+\]</span></p>
+<p>The local <span class="math inline">\(P_1\)</span> shape functions are affine,</p>
+<p><span class="math display">\[
+N_a(x,y)=\alpha_a+\beta_a x+\gamma_a y,
+\]</span></p>
+<p>and satisfy the nodal conditions</p>
+<p><span class="math display">\[
+\boxed{
+N_a(\mathbf x_b)=\delta_{ab},
+\qquad a,b=1,2,3.
+}
+\]</span></p>
+<p>For example,</p>
+<p><span class="math display">\[
+N_1(\mathbf x_1)=1,
+\qquad
+N_1(\mathbf x_2)=N_1(\mathbf x_3)=0.
+\]</span></p>
+<p>Consequently, a <span class="math inline">\(P_1\)</span> function on <span class="math inline">\(T\)</span> is completely determined by its values at the three vertices. These nodal values are the degrees of freedom of the element.</p>
+<p>If the three vertices of <span class="math inline">\(T\)</span> correspond to degrees of freedom <span class="math inline">\(i_1,i_2,i_3\)</span>, then</p>
+<p><span class="math display">\[
+\boxed{
+u_h|_T(x,y)
+=
+\sum_{a=1}^{3}U_{i_a}N_a(x,y).
+}
+\]</span></p>
+<p>The coefficients of <span class="math inline">\(N_a\)</span> can be obtained from</p>
+<p><span class="math display">\[
+\begin{pmatrix}
+1 &amp; x_1 &amp; y_1\\
+1 &amp; x_2 &amp; y_2\\
+1 &amp; x_3 &amp; y_3
+\end{pmatrix}
+\begin{pmatrix}
+\alpha_a\\
+\beta_a\\
+\gamma_a
+\end{pmatrix}
+=
+\mathbf e_a.
+\]</span></p>
+<p>Because the shape functions are affine,</p>
+<p><span class="math display">\[
+\boxed{
+\nabla N_a
+=
+\begin{pmatrix}
+\beta_a\\
+\gamma_a
+\end{pmatrix}
+}
+\]</span></p>
+<p>is constant over the triangle.</p>
+</section>
+<section id="global-basis-functions-with-local-support" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="global-basis-functions-with-local-support"><span class="header-section-number">2.2</span> Global basis functions with local support</h2>
+<p>A global nodal basis function <span class="math inline">\(\phi_i\)</span> is obtained by joining the local shape functions associated with degree of freedom <span class="math inline">\(i\)</span> over the neighboring elements.</p>
+<p>For <span class="math inline">\(P_1\)</span> elements,</p>
+<p><span class="math display">\[
+\phi_i(\mathbf x_j)=\delta_{ij},
+\]</span></p>
+<p>and the finite-element solution can be written as</p>
+<p><span class="math display">\[
+\boxed{
+u_h
+=
+\sum_{i=1}^{N_{\mathrm{dof}}} U_i \phi_i,
+\qquad
+U_i=u_h(\mathbf x_i).
+}
+\]</span></p>
+<p>Because each basis function is nonzero only on the elements sharing node <span class="math inline">\(i\)</span>, its support is the corresponding patch of triangles:</p>
+<p><span class="math display">\[
+\boxed{
+\operatorname{supp}\phi_i
+=
+\bigcup
+\left\{
+T\in\mathcal T_h:
+\mathbf x_i\in T
+\right\}.
+}
+\]</span></p>
+<p>The following figure shows the global nodal basis functions associated with an interior node and a boundary node. The triangles belonging to the support are highlighted, and the selected node is marked both on the mesh plane and at the top of the basis function.</p>
+<div id="d0270d3e" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="session2_files/figure-html/cell-4-output-1.png" width="1035" height="467" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="from-the-global-galerkin-matrix-to-element-contributions" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> From the global Galerkin matrix to element contributions</h1>
+<p>For the Poisson problem, with <span class="math inline">\(k=1\)</span> and homogeneous Neumann conditions on <span class="math inline">\(\Gamma_N\)</span>, the Galerkin formulation gives the global stiffness matrix</p>
+<p><span class="math display">\[
+\boxed{
+K_{ij}
+=
+\int_\Omega
+\nabla\phi_i\cdot\nabla\phi_j
+\,d\Omega,
+}
+\]</span></p>
+<p>and the global load vector</p>
+<p><span class="math display">\[
+\boxed{
+F_i
+=
+\int_\Omega
+f\phi_i
+\,d\Omega.
+}
+\]</span></p>
+<p>Dirichlet conditions are imposed subsequently through the prescribed degrees of freedom.</p>
+<p>We therefore need to compute these integrals for all pairs of global basis functions. The mesh provides a natural way to do this. Since the domain is the union of the elements,</p>
+<p><span class="math display">\[
+\Omega
+=
+\bigcup_{T\in\mathcal T_h} T,
+\]</span></p>
+<p>an integral over the domain can be written as a sum of integrals over the elements:</p>
+<p><span class="math display">\[
+K_{ij}
+=
+\sum_{T\in\mathcal T_h}
+\int_T
+\nabla\phi_i\cdot\nabla\phi_j
+\,d\Omega.
+\]</span></p>
+<p>Similarly,</p>
+<p><span class="math display">\[
+F_i
+=
+\sum_{T\in\mathcal T_h}
+\int_T
+f\phi_i
+\,d\Omega.
+\]</span></p>
+<p>This is the key step that makes the finite-element construction local.</p>
+<section id="local-contributions-on-one-element" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="local-contributions-on-one-element"><span class="header-section-number">3.1</span> Local contributions on one element</h2>
+<p>Consider one element <span class="math inline">\(T\)</span>, with local degrees of freedom</p>
+<p><span class="math display">\[a=1, \ldots ,n_{\mathrm{loc}}\]</span></p>
+<p>and let <span class="math inline">\(i_a\)</span> denote the global degree of freedom associated with local degree of freedom <span class="math inline">\(a\)</span>.</p>
+<p>On the element <span class="math inline">\(T\)</span>, the corresponding global basis function is simply the local shape function:</p>
+<p><span class="math display">\[
+\boxed{
+\phi_{i_a}|_T=N_a.
+}
+\]</span></p>
+<p>Therefore, if global degrees of freedom <span class="math inline">\(i_a\)</span> and <span class="math inline">\(i_b\)</span> belong to element <span class="math inline">\(T\)</span>,</p>
+<p><span class="math display">\[
+\int_T
+\nabla\phi_{i_a}\cdot\nabla\phi_{i_b}
+\,d\Omega
+=
+\int_T
+\nabla N_a\cdot\nabla N_b
+\,d\Omega.
+\]</span></p>
+<p>This motivates the definition of the <strong>elemental stiffness matrix</strong></p>
+<p><span class="math display">\[
+\boxed{
+K^{(T)}_{ab}
+=
+\int_T
+\nabla N_a\cdot\nabla N_b
+\,d\Omega,
+\qquad
+a,b=1,\ldots,n_{\mathrm{loc}},
+}
+\]</span></p>
+<p>where <span class="math inline">\(n_{\mathrm{loc}}\)</span> is the number of degrees of freedom of the element. Thus,</p>
+<p><span class="math display">\[
+K^{(T)}\in\mathbb R^{n_{\mathrm{loc}}\times n_{\mathrm{loc}}}.
+\]</span></p>
+<p>Likewise, the <strong>elemental load vector</strong> is</p>
+<p><span class="math display">\[
+\boxed{
+F^{(T)}_a
+=
+\int_T
+fN_a
+\,d\Omega,
+\qquad
+a=1,\ldots,n_{\mathrm{loc}},
+}
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+F^{(T)}\in\mathbb R^{n_{\mathrm{loc}}}.
+\]</span></p>
+</section>
+<section id="particular-case-a-p_1-triangle" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="particular-case-a-p_1-triangle"><span class="header-section-number">3.2</span> Particular case: a <span class="math inline">\(P_1\)</span> triangle</h2>
+<p>For a <span class="math inline">\(P_1\)</span> triangle,</p>
+<p><span class="math display">\[
+n_{\mathrm{loc}}=3,
+\]</span></p>
+<p>so <span class="math inline">\(K^{(T)}\)</span> is a <span class="math inline">\(3\times3\)</span> matrix and <span class="math inline">\(F^{(T)}\)</span> has three entries.</p>
+<p>The local shape functions are affine, so their gradients are constant on the element:</p>
+<p><span class="math display">\[
+\nabla N_a
+=
+\text{constant on }T.
+\]</span></p>
+<p>Hence,</p>
+<p><span class="math display">\[
+\boxed{
+K^{(T)}_{ab}
+=
+|T|\,
+\nabla N_a\cdot\nabla N_b.
+}
+\]</span></p>
+<p>For a constant source term <span class="math inline">\(f\)</span>,</p>
+<p><span class="math display">\[
+F^{(T)}_a
+=
+f\int_T N_a\,d\Omega.
+\]</span></p>
+<p>Since</p>
+<p><span class="math display">\[
+\int_T N_a\,d\Omega
+=
+\frac{|T|}{3},
+\]</span></p>
+<p>we obtain</p>
+<p><span class="math display">\[
+\boxed{
+F^{(T)}
+=
+\frac{f|T|}{3}
+\begin{pmatrix}
+1\\
+1\\
+1
+\end{pmatrix}.
+}
+\]</span></p>
+</section>
+</section>
+<section id="from-local-to-global-assembly" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> From local to global: assembly</h1>
+<p>Let <span class="math inline">\(i_a\)</span> denote the degree of freedom in the global system corresponding to local degree of freedom <span class="math inline">\(a\)</span> of element <span class="math inline">\(T\)</span>.</p>
+<p>Assembly consists of adding the elemental contributions to the corresponding entries of the global matrix and vector:</p>
+<p><span class="math display">\[
+\boxed{
+K_{i_a i_b}
+\;+=\;
+K^{(T)}_{ab},
+\qquad
+a,b=1,\ldots,n_{\mathrm{loc}},
+}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\boxed{
+F_{i_a}
+\;+=\;
+F^{(T)}_a.
+}
+\]</span></p>
+<p>A global entry can therefore receive contributions from several neighboring elements.</p>
+<p>For example, for a <span class="math inline">\(P_1\)</span> triangle, suppose that the local degrees of freedom</p>
+<p><span class="math display">\[
+1,\qquad2,\qquad3
+\]</span></p>
+<p>correspond to the degrees of freedom</p>
+<p><span class="math display">\[
+5,\qquad12,\qquad8.
+\]</span></p>
+<p>Then</p>
+<p><span class="math display">\[
+\begin{pmatrix}
+K_{5,5} &amp; K_{5,12} &amp; K_{5,8}\\
+K_{12,5} &amp; K_{12,12} &amp; K_{12,8}\\
+K_{8,5} &amp; K_{8,12} &amp; K_{8,8}
+\end{pmatrix}
+\;+=\;
+\begin{pmatrix}
+K^{(T)}_{11} &amp; K^{(T)}_{12} &amp; K^{(T)}_{13}\\
+K^{(T)}_{21} &amp; K^{(T)}_{22} &amp; K^{(T)}_{23}\\
+K^{(T)}_{31} &amp; K^{(T)}_{32} &amp; K^{(T)}_{33}
+\end{pmatrix},
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\begin{pmatrix}
+F_5\\
+F_{12}\\
+F_8
+\end{pmatrix}
+\;+=\;
+\begin{pmatrix}
+F_1^{(T)}\\
+F_2^{(T)}\\
+F_3^{(T)}
+\end{pmatrix}.
+\]</span></p>
+<p>After assembly, the discrete equations have the global form</p>
+<p><span class="math display">\[
+KU=F,
+\]</span></p>
+<p>before the prescribed Dirichlet degrees of freedom are eliminated.</p>
+</section>
+<section id="local-support-and-sparsity" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Local support and sparsity</h1>
+<p>The global stiffness entries are</p>
+<p><span class="math display">\[
+K_{ij}
+=
+\int_\Omega
+\nabla\phi_i\cdot\nabla\phi_j\,d\Omega.
+\]</span></p>
+<p>A global basis function is non-zero only on the elements connected to its degree of freedom. If two basis functions do not overlap,</p>
+<p><span class="math display">\[
+\operatorname{supp}\phi_i
+\cap
+\operatorname{supp}\phi_j
+=
+\varnothing,
+\]</span></p>
+<p>then</p>
+<p><span class="math display">\[
+K_{ij}=0.
+\]</span></p>
+<p>Therefore,</p>
+<p><span class="math display">\[
+\boxed{
+\text{local support}
+\Longrightarrow
+\text{sparse global matrix}.
+}
+\]</span></p>
+<p>Only degrees of freedom belonging to at least one common element interact directly through the stiffness matrix. This is important because linear solver takes advantage of sparsity to reduce memory and computational cost, as shown is session 3.</p>
+</section>
+<section id="dirichlet-boundary-conditions" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Dirichlet boundary conditions</h1>
+<section id="homogeneous-dirichlet-conditions" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="homogeneous-dirichlet-conditions"><span class="header-section-number">6.1</span> Homogeneous Dirichlet conditions</h2>
+<p>For</p>
+<p><span class="math display">\[
+u=0
+\qquad
+\text{on }\Gamma_D,
+\]</span></p>
+<p>the corresponding nodal degrees of freedom are prescribed:</p>
+<p><span class="math display">\[
+\boxed{
+U_i=0
+\qquad
+\text{for all Dirichlet degrees of freedom }i.
+}
+\]</span></p>
+<p>This can be implemented by eliminating the corresponding rows and columns of the global system.</p>
+</section>
+<section id="non-homogeneous-dirichlet-conditions" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="non-homogeneous-dirichlet-conditions"><span class="header-section-number">6.2</span> Non-homogeneous Dirichlet conditions</h2>
+<p>For</p>
+<p><span class="math display">\[
+u=g
+\qquad
+\text{on }\Gamma_D,
+\]</span></p>
+<p>the degrees of freedom associated with <span class="math inline">\(\Gamma_D\)</span> are prescribed by the boundary data. For nodal finite elements,</p>
+<p><span class="math display">\[
+U_i=g(\mathbf x_i)
+\qquad
+\text{for every node }\mathbf x_i\in\Gamma_D.
+\]</span></p>
+<p>Split the vector of degrees of freedom into</p>
+<ul>
+<li><span class="math inline">\(U_f\)</span>: unknown, or free, degrees of freedom;</li>
+<li><span class="math inline">\(U_D\)</span>: prescribed Dirichlet degrees of freedom.</li>
+</ul>
+<p>After grouping the corresponding rows and columns,</p>
+<p><span class="math display">\[
+\begin{pmatrix}
+K_{ff} &amp; K_{fD}\\
+K_{Df} &amp; K_{DD}
+\end{pmatrix}
+\begin{pmatrix}
+U_f\\
+U_D
+\end{pmatrix}
+=
+\begin{pmatrix}
+F_f\\
+F_D
+\end{pmatrix}.
+\]</span></p>
+<p>Since <span class="math inline">\(U_D\)</span> is known from the prescribed boundary values, the equations associated with the free degrees of freedom become</p>
+<p><span class="math display">\[
+\boxed{
+K_{ff}U_f
+=
+F_f-K_{fD}U_D.
+}
+\]</span></p>
+<p>After solving this reduced system, the complete vector <span class="math inline">\(U\)</span> is reconstructed by combining the computed values <span class="math inline">\(U_f\)</span> with the prescribed values <span class="math inline">\(U_D\)</span>.</p>
+<p>This is the discrete counterpart of the Dirichlet lifting introduced in Session 1.</p>
+</section>
+</section>
+<section id="beyond-p_1-quadratic-p_2-triangles" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Beyond <span class="math inline">\(P_1\)</span>: quadratic <span class="math inline">\(P_2\)</span> triangles</h1>
+<p>The same finite-element construction can be used with higher-degree polynomial approximations.</p>
+<p>For a quadratic triangular element,</p>
+<p><span class="math display">\[
+\boxed{
+v_h|_T\in\mathbb P_2(T).
+}
+\]</span></p>
+<p>Since</p>
+<p><span class="math display">\[
+\dim\mathbb P_2(T)=6,
+\]</span></p>
+<p>a standard nodal <span class="math inline">\(P_2\)</span> triangle has six local degrees of freedom:</p>
+<ul>
+<li>three at the vertices;</li>
+<li>three at the edge midpoints.</li>
+</ul>
+<div id="cell-fig-p1-p2-nodes" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div id="fig-p1-p2-nodes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-p1-p2-nodes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="session2_files/figure-html/fig-p1-p2-nodes-output-1.png" width="950" height="404" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-p1-p2-nodes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: <span class="math inline">\(P_1\)</span> and <span class="math inline">\(P_2\)</span> nodal triangles. A <span class="math inline">\(P_2\)</span> triangle has three additional edge degrees of freedom.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The nodal interpolation property is unchanged in principle. It now applies to all six element nodes:</p>
+<p><span class="math display">\[
+\boxed{
+N_a(\mathbf x_b)=\delta_{ab},
+\qquad a,b=1,\ldots,6.
+}
+\]</span></p>
+<div id="cell-fig-p2-local-shape-functions" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div id="fig-p2-local-shape-functions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-p2-local-shape-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="session2_files/figure-html/fig-p2-local-shape-functions-output-1.png" width="810" height="481" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-p2-local-shape-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The six local <span class="math inline">\(P_2\)</span> shape functions on a physical triangular element. The orange triangle represents the element <span class="math inline">\(T\)</span> and the blue surface represents the graph of <span class="math inline">\(N_a\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The assembly rule is also unchanged:</p>
+<p><span class="math display">\[
+K_{i_ai_b} += K^{(T)}_{ab},
+\qquad
+F_{i_a} += F_a^{(T)},
+\]</span></p>
+<p>but now</p>
+<p><span class="math display">\[
+n_{\mathrm{loc}}=6.
+\]</span></p>
+<p>Here, the physical triangle has straight edges. We will see later than the isoparametric quadratic element allows us to construct curved geometries.</p>
+</section>
+<section id="why-numerical-integration-becomes-useful" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Why numerical integration becomes useful</h1>
+<p>For a <span class="math inline">\(P_1\)</span> triangle,</p>
+<p><span class="math display">\[
+N_a\in\mathbb P_1(T)
+\qquad\Longrightarrow\qquad
+\nabla N_a=\text{constant}.
+\]</span></p>
+<p>Consequently, the Poisson stiffness integrand</p>
+<p><span class="math display">\[
+\nabla N_a\cdot\nabla N_b
+\]</span></p>
+<p>is constant on the element.</p>
+<p>For a <span class="math inline">\(P_2\)</span> triangle,</p>
+<p><span class="math display">\[
+N_a\in\mathbb P_2(T)
+\qquad\Longrightarrow\qquad
+\nabla N_a\in\mathbb P_1(T),
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+\boxed{
+\nabla N_a\cdot\nabla N_b
+\in
+\mathbb P_2(T).
+}
+\]</span></p>
+<p>The stiffness integrand is no longer constant, so the elemental matrix cannot in general be obtained simply as</p>
+<p><span class="math display">\[
+|T|\times\text{constant integrand}.
+\]</span></p>
+<p>This motivates a systematic procedure for evaluating element integrals. The standard solution is to define shape functions and quadrature rules once on a <strong>reference element</strong>, then map them to every physical element.</p>
+</section>
+<section id="reference-elements-mappings-and-isoparametric-geometry" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Reference elements, mappings, and isoparametric geometry</h1>
+<section id="p_1-and-p_2-on-the-reference-triangle" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="p_1-and-p_2-on-the-reference-triangle"><span class="header-section-number">9.1</span> <span class="math inline">\(P_1\)</span> and <span class="math inline">\(P_2\)</span> on the reference triangle</h2>
+<p>Define the reference triangle</p>
+<p><span class="math display">\[
+\widehat T
+=
+\left\{
+(\xi,\eta):
+\xi\ge0,
+\;\eta\ge0,
+\;\xi+\eta\le1
+\right\}.
+\]</span></p>
+<p>Its vertices are</p>
+<p><span class="math display">\[
+(0,0),
+\qquad
+(1,0),
+\qquad
+(0,1).
+\]</span></p>
+<div id="cell-fig-reference-triangle" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-reference-triangle" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-reference-triangle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="session2_files/figure-html/fig-reference-triangle-output-1.png" width="392" height="389" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reference-triangle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Reference triangle <span class="math inline">\(\widehat{T}\)</span> in the <span class="math inline">\((\xi,\eta)\)</span> coordinate system.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>For <span class="math inline">\(P_1\)</span>, the shape functions on the reference triangle are</p>
+<p><span class="math display">\[
+\widehat N_1=1-\xi-\eta,
+\qquad
+\widehat N_2=\xi,
+\qquad
+\widehat N_3=\eta.
+\]</span></p>
+<p>For <span class="math inline">\(P_2\)</span>, introduce the barycentric coordinates</p>
+<p><span class="math display">\[
+\lambda_1=1-\xi-\eta,
+\qquad
+\lambda_2=\xi,
+\qquad
+\lambda_3=\eta.
+\]</span></p>
+<p>Then, the six quadratic shape functions are defined as</p>
+<p><span class="math display">\[
+\begin{aligned}
+\widehat N_1 &amp;= \lambda_1(2\lambda_1-1),
+&amp;\qquad
+\widehat N_2 &amp;= \lambda_2(2\lambda_2-1),
+&amp;\qquad
+\widehat N_3 &amp;= \lambda_3(2\lambda_3-1),\\
+\widehat N_4 &amp;= 4\lambda_1\lambda_2,
+&amp;
+\widehat N_5 &amp;= 4\lambda_2\lambda_3,
+&amp;
+\widehat N_6 &amp;= 4\lambda_3\lambda_1.
+\end{aligned}
+\]</span></p>
+<p>The first three functions are associated with the vertices and the last three with the edge midpoints.</p>
+</section>
+<section id="isoparametric-mapping-to-a-physical-element" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="isoparametric-mapping-to-a-physical-element"><span class="header-section-number">9.2</span> Isoparametric mapping to a physical element</h2>
+<p>A mapping from the reference triangle to a physical element is obtained by interpolating the geometry with the element shape functions.</p>
+<p>If local node <span class="math inline">\(a\)</span> corresponds to node <span class="math inline">\(i_a\)</span> in the mesh, then</p>
+<p><span class="math display">\[
+\boxed{
+\mathbf x(\xi,\eta)
+=
+\sum_{a=1}^{n_{\mathrm{loc}}}
+\mathbf x_{i_a}\widehat N_a(\xi,\eta).
+}
+\]</span></p>
+<p>The finite-element field on the same element is</p>
+<p><span class="math display">\[
+\boxed{
+u_h(\mathbf x(\xi,\eta))
+=
+\sum_{a=1}^{n_{\mathrm{loc}}}
+U_{i_a}\widehat N_a(\xi,\eta).
+}
+\]</span></p>
+<p>When the <strong>same shape functions</strong> are used to interpolate the geometry and the finite-element field, the element is called <strong>isoparametric</strong>.</p>
+<section id="p_1-the-affine-case" class="level3" data-number="9.2.1">
+<h3 data-number="9.2.1" class="anchored" data-anchor-id="p_1-the-affine-case"><span class="header-section-number">9.2.1</span> <span class="math inline">\(P_1\)</span>: the affine case</h3>
+<p>For a <span class="math inline">\(P_1\)</span> triangle,</p>
+<p><span class="math display">\[
+\boxed{
+\mathbf x(\xi,\eta)
+=
+\sum_{a=1}^{3}
+\mathbf x_{i_a}\widehat N_a(\xi,\eta).
+}
+\]</span></p>
+<p>Using</p>
+<p><span class="math display">\[
+\widehat N_1=1-\xi-\eta,
+\qquad
+\widehat N_2=\xi,
+\qquad
+\widehat N_3=\eta,
+\]</span></p>
+<p>gives</p>
+<p><span class="math display">\[
+\boxed{
+\mathbf x(\xi,\eta)
+=
+\mathbf x_{i_1}
++
+\xi(\mathbf x_{i_2}-\mathbf x_{i_1})
++
+\eta(\mathbf x_{i_3}-\mathbf x_{i_1}).
+}
+\]</span></p>
+<p>This is the affine mapping corresponding to the straight-sided <span class="math inline">\(P_1\)</span> triangles introduced earlier.</p>
+</section>
+<section id="p_2-straight-and-curved-geometry" class="level3" data-number="9.2.2">
+<h3 data-number="9.2.2" class="anchored" data-anchor-id="p_2-straight-and-curved-geometry"><span class="header-section-number">9.2.2</span> <span class="math inline">\(P_2\)</span>: straight and curved geometry</h3>
+<p>For a <span class="math inline">\(P_2\)</span> triangle,</p>
+<p><span class="math display">\[
+\boxed{
+\mathbf x(\xi,\eta)
+=
+\sum_{a=1}^{6}
+\mathbf x_{i_a}\widehat N_a(\xi,\eta).
+}
+\]</span></p>
+<p>If the three edge nodes are exactly at the midpoints of straight edges, this quadratic representation reproduces the affine triangle. If an edge node is moved to follow a curved boundary, the mapping becomes genuinely quadratic and the physical edge can be curved.</p>
+<div id="cell-fig-isoparametric-mapping" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<div id="fig-isoparametric-mapping" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-isoparametric-mapping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="session2_files/figure-html/fig-isoparametric-mapping-output-1.png" width="1238" height="361" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-isoparametric-mapping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: A <span class="math inline">\(P_2\)</span> reference triangle can be mapped either to a straight-sided triangle or to a curved isoparametric element. Moving an edge node allows the geometry to follow a curved boundary.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Thus the same reference element can be used for both straight and curved physical elements.</p>
+</section>
+</section>
+<section id="jacobian-and-transformation-of-gradients" class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="jacobian-and-transformation-of-gradients"><span class="header-section-number">9.3</span> Jacobian and transformation of gradients</h2>
+<p>The Jacobian of the mapping is</p>
+<p><span class="math display">\[
+J
+=
+\frac{\partial(x,y)}{\partial(\xi,\eta)}
+=
+\begin{pmatrix}
+\dfrac{\partial x}{\partial\xi} &amp; \dfrac{\partial x}{\partial\eta}\\[2mm]
+\dfrac{\partial y}{\partial\xi} &amp; \dfrac{\partial y}{\partial\eta}
+\end{pmatrix}.
+\]</span></p>
+<p>The area element transforms as</p>
+<p><span class="math display">\[
+\boxed{
+d\Omega
+=
+|\det J|\,d\xi\,d\eta.
+}
+\]</span></p>
+<p>If</p>
+<p><span class="math display">\[
+N_a(\mathbf x(\xi,\eta))
+=
+\widehat N_a(\xi,\eta),
+\]</span></p>
+<p>the chain rule gives</p>
+<p><span class="math display">\[
+\nabla_{\xi}\widehat N_a
+=
+J^T\nabla_xN_a.
+\]</span></p>
+<p>Therefore,</p>
+<p><span class="math display">\[
+\boxed{
+\nabla_xN_a
+=
+J^{-T}\nabla_{\xi}\widehat N_a.
+}
+\]</span></p>
+<p>For an affine <span class="math inline">\(P_1\)</span> triangle,</p>
+<p><span class="math display">\[
+J
+=
+\begin{pmatrix}
+x_{i_2}-x_{i_1} &amp; x_{i_3}-x_{i_1}\\
+y_{i_2}-y_{i_1} &amp; y_{i_3}-y_{i_1}
+\end{pmatrix}
+\]</span></p>
+<p>is constant over the element.</p>
+<p>For a curved isoparametric element,</p>
+<p><span class="math display">\[
+\boxed{
+J=J(\xi,\eta),
+}
+\]</span></p>
+<p>so, unlike the affine <span class="math inline">\(P_1\)</span> case, <span class="math inline">\(J\)</span>, <span class="math inline">\(|\det J|\)</span>, and <span class="math inline">\(J^{-T}\)</span> are no longer constant over the element and integrals must be performed with a sufficiently high order of numerical integration. This issue goes beyond the scope of this introductory course.</p>
+</section>
+</section>
+<section id="numerical-quadrature-in-practice" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Numerical quadrature in practice</h1>
+<p>An integral over a physical element is first transformed to the reference triangle:</p>
+<p><span class="math display">\[
+\boxed{
+\int_T g(\mathbf x)\,d\Omega
+=
+\int_{\widehat T}
+g(\mathbf x(\xi,\eta))
+|\det J(\xi,\eta)|
+\,d\xi\,d\eta.
+}
+\]</span></p>
+<p>A quadrature rule on <span class="math inline">\(\widehat T\)</span> approximates</p>
+<p><span class="math display">\[
+\int_{\widehat T}q(\xi,\eta)\,d\xi\,d\eta
+\]</span></p>
+<p>by</p>
+<p><span class="math display">\[
+\boxed{
+\sum_{q=1}^{n_q}
+w_q\,q(\xi_q,\eta_q).
+}
+\]</span></p>
+<p>Hence, on a physical element,</p>
+<p><span class="math display">\[
+\boxed{
+\int_Tg(\mathbf x)\,d\Omega
+\approx
+\sum_{q=1}^{n_q}
+w_q\,
+g(\mathbf x_q)
+|\det J_q|,
+}
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+\mathbf x_q
+=
+\mathbf x(\xi_q,\eta_q),
+\qquad
+J_q
+=
+J(\xi_q,\eta_q).
+\]</span></p>
+<p>For the Poisson stiffness matrix,</p>
+<p><span class="math display">\[
+K^{(T)}_{ab}
+=
+\int_T
+\nabla N_a\cdot\nabla N_b\,d\Omega,
+\]</span></p>
+<p>so the practical formula is</p>
+<p><span class="math display">\[
+\boxed{
+K^{(T)}_{ab}
+\approx
+\sum_{q=1}^{n_q}
+w_q
+\left(
+J_q^{-T}\nabla_\xi\widehat N_a(\xi_q,\eta_q)
+\right)
+\cdot
+\left(
+J_q^{-T}\nabla_\xi\widehat N_b(\xi_q,\eta_q)
+\right)
+|\det J_q|.
+}
+\]</span></p>
+<p>Similarly,</p>
+<p><span class="math display">\[
+\boxed{
+F_a^{(T)}
+\approx
+\sum_{q=1}^{n_q}
+w_q\,
+f(\mathbf x_q)\,
+\widehat N_a(\xi_q,\eta_q)\,
+|\det J_q|.
+}
+\]</span></p>
+<div id="cell-fig-reference-quadrature" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div id="fig-reference-quadrature" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-reference-quadrature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="session2_files/figure-html/fig-reference-quadrature-output-1.png" width="931" height="448" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reference-quadrature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Quadrature rules on the reference triangle <span class="math inline">\(\widehat{T}\)</span>. Left: one-point rule with a <span class="math inline">\(P_1\)</span> element. Right: three-point degree-two rule with a <span class="math inline">\(P_2\)</span> element.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>For the one-point rule on the reference triangle,</p>
+<p><span class="math display">\[
+(\xi_1,\eta_1)
+=
+\left(\frac{1}{3},\frac{1}{3}\right),
+\qquad
+w_1=\frac{1}{2}.
+\]</span></p>
+<p>This rule is exact for affine functions and is sufficient for the constant <span class="math inline">\(P_1\)</span> Poisson stiffness integrand on a straight-sided triangle.</p>
+<p>For a straight-sided <span class="math inline">\(P_2\)</span> triangle, the stiffness integrand is quadratic. A degree-two exact rule uses three points,</p>
+<p><span class="math display">\[
+\left(\frac{1}{6},\frac{1}{6}\right),
+\qquad
+\left(\frac{2}{3},\frac{1}{6}\right),
+\qquad
+\left(\frac{1}{6},\frac{2}{3}\right),
+\]</span></p>
+<p>with weights</p>
+<p><span class="math display">\[
+w_1=w_2=w_3=\frac{1}{6}.
+\]</span></p>
+<p>For curved isoparametric elements, <span class="math inline">\(J\)</span> also varies with <span class="math inline">\((\xi,\eta)\)</span>, and the quadrature rule must be chosen with sufficient accuracy.</p>
+</section>
+<section id="practical-finite-element-algorithm" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Practical finite-element algorithm</h1>
+<p>A finite-element implementation can be summarized as follows:</p>
+<ol type="1">
+<li>Generate the mesh.</li>
+<li>Choose the finite-element type.</li>
+<li>For each element <span class="math inline">\(T\)</span>:
+<ul>
+<li>determine the local-to-global degree-of-freedom map;</li>
+<li>evaluate the element integrals, using the reference element and numerical quadrature;</li>
+<li>assemble <span class="math display">\[
+K_{i_a i_b} += K^{(T)}_{ab},
+\qquad
+F_{i_a} += F_a^{(T)}.
+\]</span></li>
+</ul></li>
+<li>Impose Dirichlet boundary conditions.</li>
+<li>Solve the reduced sparse linear system.</li>
+<li>Reconstruct the finite-element solution.</li>
+</ol>
+<p>Thus,</p>
+<p><span class="math display">\[
+\boxed{
+\text{mesh}
+\rightarrow
+\text{element contributions}
+\rightarrow
+\text{assembly}
+\rightarrow
+\text{sparse system}
+\rightarrow
+u_h.
+}
+\]</span></p>
+<p>Session 3 studies how mesh size, polynomial degree, and solution regularity control the accuracy and computational cost of this approximation.</p>
+</section>
+<section id="example-poisson-equation-on-a-square-with-a-hole" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> Example: Poisson equation on a square with a hole</h1>
+<p>We now apply the finite-element procedure introduced above to a simple model problem.</p>
+<p>The domain is the unit square containing a circular hole of radius <span class="math inline">\(R=0.18\)</span> centred at <span class="math inline">\((1/2,1/2)\)</span>:</p>
+<p><span class="math display">\[
+\Omega
+=
+\left\{
+(x,y)\in(0,1)^2:
+\left(x-\frac12\right)^2
++
+\left(y-\frac12\right)^2
+&gt;
+R^2
+\right\}.
+\]</span></p>
+<p>We consider the special case</p>
+<p><span class="math display">\[
+k=1,
+\qquad
+f=0,
+\]</span></p>
+<p>so that</p>
+<p><span class="math display">\[
+-\Delta u=0
+\qquad
+\text{in }\Omega.
+\]</span></p>
+<p>Dirichlet conditions are prescribed on the left and right boundaries,</p>
+<p><span class="math display">\[
+u=0
+\qquad
+\text{on }\Gamma_{\mathrm{left}},
+\]</span></p>
+<p><span class="math display">\[
+u=1
+\qquad
+\text{on }\Gamma_{\mathrm{right}},
+\]</span></p>
+<p>while homogeneous Neumann conditions are imposed on the remaining boundary,</p>
+<p><span class="math display">\[
+\nabla u\cdot\mathbf n=0
+\qquad
+\text{on }
+\Gamma_{\mathrm{top}}
+\cup
+\Gamma_{\mathrm{bottom}}
+\cup
+\Gamma_{\mathrm{hole}}.
+\]</span></p>
+<p>The domain is discretized with straight-sided <span class="math inline">\(P_1\)</span> triangular elements generated with Gmsh. As in the preceding discussion, the polygonal approximation of the circular boundary is identified with the computational domain.</p>
+<p>The following code performs the complete calculation: mesh generation, assembly, application of the Dirichlet conditions, sparse solution of the linear system, and visualization of <span class="math inline">\(u_h\)</span>.</p>
+<div id="dae09072" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-stdout">
+<pre><code>Info    : [  0%] Difference                                                                                  
+Info    : [ 10%] Difference                                                                                  
+Info    : [ 20%] Difference                                                                                  
+Info    : [ 30%] Difference - Performing Face-Face intersection                                                                                
+Info    : [ 70%] Difference - Performing intersection of shapes                                                                                
+Info    : [ 80%] Difference - Making faces                                                                                
+Info    : [ 90%] Difference - Adding holes                                                                                
+                                                                                
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 5 (Ellipse)
+Info    : [ 30%] Meshing curve 6 (Line)
+Info    : [ 50%] Meshing curve 7 (Line)
+Info    : [ 70%] Meshing curve 8 (Line)
+Info    : [ 90%] Meshing curve 9 (Line)
+Info    : Done meshing 1D (Wall 0.00051254s, CPU 0.000583s)
+Info    : Meshing 2D...
+Info    : Meshing surface 1 (Plane, Frontal-Delaunay)
+Info    : Done meshing 2D (Wall 0.00107608s, CPU 0.001114s)
+Info    : 47 nodes 99 elements</code></pre>
+</div>
+</div>
+<div id="e7e68b6a" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> time <span class="im">import</span> perf_counter</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse <span class="im">import</span> coo_matrix</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse.linalg <span class="im">import</span> spsolve</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_poisson(x, y, triangles):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> np.column_stack((x, y))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    ndof <span class="op">=</span> <span class="bu">len</span>(nodes)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    rows, cols, data <span class="op">=</span> [], [], []</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    F <span class="op">=</span> np.zeros(ndof)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -----------------------------</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assembly</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -----------------------------</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    tic <span class="op">=</span> perf_counter()</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> tri <span class="kw">in</span> triangles:</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        xy <span class="op">=</span> nodes[tri]</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        M <span class="op">=</span> np.column_stack((</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            np.ones(<span class="dv">3</span>),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>            xy[:, <span class="dv">0</span>],</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>            xy[:, <span class="dv">1</span>]</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        ))</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        C <span class="op">=</span> np.linalg.inv(M)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        gradN <span class="op">=</span> C[<span class="dv">1</span>:, :].T</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        J <span class="op">=</span> np.column_stack((</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>            xy[<span class="dv">1</span>] <span class="op">-</span> xy[<span class="dv">0</span>],</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>            xy[<span class="dv">2</span>] <span class="op">-</span> xy[<span class="dv">0</span>]</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        ))</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        area <span class="op">=</span> <span class="bu">abs</span>(np.linalg.det(J)) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        Ke <span class="op">=</span> area <span class="op">*</span> (gradN <span class="op">@</span> gradN.T)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> a <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> b <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>                rows.append(tri[a])</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>                cols.append(tri[b])</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>                data.append(Ke[a, b])</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assembly:</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># K[tri[a], tri[b]] += Ke[a, b]</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Duplicate COO entries are summed automatically.</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    K <span class="op">=</span> coo_matrix(</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>        (data, (rows, cols)),</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>        shape<span class="op">=</span>(ndof, ndof)</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    ).tocsr()</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    assembly_time <span class="op">=</span> perf_counter() <span class="op">-</span> tic</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -----------------------------</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Boundary conditions</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -----------------------------</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    left  <span class="op">=</span> np.isclose(x, <span class="fl">0.0</span>)</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    right <span class="op">=</span> np.isclose(x, <span class="fl">1.0</span>)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    prescribed <span class="op">=</span> left <span class="op">|</span> right</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    id_D <span class="op">=</span> np.where(prescribed)[<span class="dv">0</span>]</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    id_f <span class="op">=</span> np.where(<span class="op">~</span>prescribed)[<span class="dv">0</span>]</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    U <span class="op">=</span> np.zeros(ndof)</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    U[left] <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    U[right] <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -----------------------------</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Solve</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -----------------------------</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    tic <span class="op">=</span> perf_counter()</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    rhs <span class="op">=</span> F[id_f] <span class="op">-</span> K[id_f][:, id_D] <span class="op">@</span> U[id_D]</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    U[id_f] <span class="op">=</span> spsolve(</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>        K[id_f][:, id_f],</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>        rhs</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    solve_time <span class="op">=</span> perf_counter() <span class="op">-</span> tic</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> U, assembly_time, solve_time</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>x, y, triangles <span class="op">=</span> gmsh_plate_with_hole(</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>    mesh_size<span class="op">=</span><span class="fl">0.10</span></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a><span class="co"># Call the function</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>plot_mesh(x, y, triangles)</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>U, assembly_time, solve_time <span class="op">=</span> solve_poisson(</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    x,</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    y,</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    triangles</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a><span class="co"># Call the function</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>plot_solution(x, y, triangles, U)</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"assembly time :"</span>, assembly_time)</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"solve time :"</span>, solve_time)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Info    : [  0%] Difference                                                                                  
+Info    : [ 10%] Difference                                                                                  
+Info    : [ 20%] Difference                                                                                  
+Info    : [ 30%] Difference - Performing Face-Face intersection                                                                                
+Info    : [ 70%] Difference - Performing intersection of shapes                                                                                
+Info    : [ 80%] Difference - Making faces                                                                                
+Info    : [ 90%] Difference - Adding holes                                                                                
+                                                                                
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 5 (Ellipse)
+Info    : [ 30%] Meshing curve 6 (Line)
+Info    : [ 50%] Meshing curve 7 (Line)
+Info    : [ 70%] Meshing curve 8 (Line)
+Info    : [ 90%] Meshing curve 9 (Line)
+Info    : Done meshing 1D (Wall 0.000457366s, CPU 0.003083s)
+Info    : Meshing 2D...
+Info    : Meshing surface 1 (Plane, Frontal-Delaunay)
+Info    : Done meshing 2D (Wall 0.00483386s, CPU 0.016469s)
+Info    : 152 nodes 309 elements</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="session2_files/figure-html/cell-12-output-2.png" width="512" height="504" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="session2_files/figure-html/cell-12-output-3.png" width="592" height="491" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>assembly time : 0.020647588999963773
+solve time : 0.0011035560000891564</code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/kerfriden\.github\.io\/fem-quarto\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

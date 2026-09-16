@@ -1,6 +1,0 @@
-gmsh
-ipykernel
-jupyter
-matplotlib
-numpy
-scipy

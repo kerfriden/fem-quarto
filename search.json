@@ -1,0 +1,412 @@
+[
+  {
+    "objectID": "session3.html",
+    "href": "session3.html",
+    "title": "Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method",
+    "section": "",
+    "text": "By the end of this session, students should be able to:\n\ndistinguish interpolation error from finite-element error;\nrelate finite-element accuracy to polynomial degree, mesh size, and solution regularity;\nstate the expected convergence rates for \\(P_1\\) and \\(P_2\\) elements;\nexplain the role of mesh quality in approximation and conditioning;\nrelate mesh refinement to the number of degrees of freedom;\nunderstand the main computational consequences of sparsity and conditioning.",
+    "crumbs": [
+      "Session 3 — Analysis of the finite element method"
+    ]
+  },
+  {
+    "objectID": "session3.html#learning-objectives",
+    "href": "session3.html#learning-objectives",
+    "title": "Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method",
+    "section": "",
+    "text": "By the end of this session, students should be able to:\n\ndistinguish interpolation error from finite-element error;\nrelate finite-element accuracy to polynomial degree, mesh size, and solution regularity;\nstate the expected convergence rates for \\(P_1\\) and \\(P_2\\) elements;\nexplain the role of mesh quality in approximation and conditioning;\nrelate mesh refinement to the number of degrees of freedom;\nunderstand the main computational consequences of sparsity and conditioning.",
+    "crumbs": [
+      "Session 3 — Analysis of the finite element method"
+    ]
+  },
+  {
+    "objectID": "session3.html#session-schedule",
+    "href": "session3.html#session-schedule",
+    "title": "Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method",
+    "section": "Session schedule",
+    "text": "Session schedule\n\n\n\nTime\nTopic\n\n\n\n\n0–10 min\nFrom Galerkin optimality to convergence\n\n\n10–30 min\nInterpolation error in 1D\n\n\n30–45 min\nExtension to 2D and higher-order elements\n\n\n45–60 min\nFinite-element error and solution regularity\n\n\n60–70 min\nMesh quality and shape regularity\n\n\n70–80 min\nConvergence, degrees of freedom, and conditioning\n\n\n80–90 min\nLinear solvers and computational cost",
+    "crumbs": [
+      "Session 3 — Analysis of the finite element method"
+    ]
+  },
+  {
+    "objectID": "session3.html#linear-elements-p_1",
+    "href": "session3.html#linear-elements-p_1",
+    "title": "Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method",
+    "section": "4.1 Linear elements: \\(P_1\\)",
+    "text": "4.1 Linear elements: \\(P_1\\)\nConsider a one-dimensional element\n\\[\nT=[x_1,x_2],\n\\qquad\nh_T=x_2-x_1.\n\\]\nLet \\(I_hu\\) denote the \\(P_1\\) interpolant of \\(u\\), defined by\n\\[\nI_hu(x_1)=u(x_1),\n\\qquad\nI_hu(x_2)=u(x_2).\n\\]\nRecall that the \\(L^\\infty\\) norm measures the maximum absolute value of a function over the element:\n\\[\n\\boxed{\n\\|v\\|_{L^\\infty(T)}\n=\n\\max_{x\\in T}|v(x)|.\n}\n\\]\nThus,\n\\[\n\\|u-I_hu\\|_{L^\\infty(T)}\n\\]\nis the largest interpolation error anywhere in the element.\n\n4.1.1 Error on the function\n\n\n\n\n\n\n\n\nFigure 1: A cubic function on one element \\(T=[x_1,x_2]\\), its linear interpolant, and the maximum interpolation error.\n\n\n\n\n\nChoose any point \\(x\\in T\\). Taylor expansions of the nodal values about \\(x\\) give\n\\[\nu(x_1)\n=\nu(x)\n+\nu'(x)(x_1-x)\n+\nr_1,\n\\]\nand\n\\[\nu(x_2)\n=\nu(x)\n+\nu'(x)(x_2-x)\n+\nr_2,\n\\]\nwith\n\\[\n|r_1|\n\\le\n\\frac{1}{2}|x_1-x|^2\n\\|u''\\|_{L^\\infty(T)},\n\\]\nand\n\\[\n|r_2|\n\\le\n\\frac{1}{2}|x_2-x|^2\n\\|u''\\|_{L^\\infty(T)}.\n\\]\nThe \\(P_1\\) interpolant can be written as\n\\[\nI_hu(x)\n=\n\\frac{x_2-x}{h_T}u(x_1)\n+\n\\frac{x-x_1}{h_T}u(x_2).\n\\]\nSubstituting the Taylor expansions, the constant term gives \\(u(x)\\) and the linear terms cancel exactly. Therefore,\n\\[\nI_hu(x)-u(x)\n=\n\\frac{x_2-x}{h_T}r_1\n+\n\\frac{x-x_1}{h_T}r_2.\n\\]\nUsing the bounds on the Taylor remainders gives\n\\[\n|I_hu(x)-u(x)|\n\\le\n\\frac{1}{2}\n(x-x_1)(x_2-x)\n\\|u''\\|_{L^\\infty(T)}.\n\\]\nSince\n\\[\n(x-x_1)(x_2-x)\n\\le\n\\frac{h_T^2}{4},\n\\]\nwe obtain\n\\[\n\\boxed{\n\\|u-I_hu\\|_{L^\\infty(T)}\n\\le\n\\frac{h_T^2}{8}\n\\|u''\\|_{L^\\infty(T)}.\n}\n\\]\nHence,\n\\[\n\\boxed{\nu-I_hu=O(h_T^2).\n}\n\\]\n\n\n4.1.2 Error on the derivative\nThe \\(P_1\\) interpolant is linear on the element, so its derivative is constant:\n\\[\n(I_hu)'\n=\n\\frac{u(x_2)-u(x_1)}{h_T}.\n\\]\nUsing the same Taylor expansions,\n\\[\nu(x_2)-u(x_1)\n=\nh_Tu'(x)\n+\nr_2-r_1,\n\\]\nand therefore\n\\[\n(I_hu)'\n=\nu'(x)\n+\n\\frac{r_2-r_1}{h_T}.\n\\]\nHence,\n\\[\n|(u-I_hu)'(x)|\n\\le\n\\frac{|r_1|+|r_2|}{h_T}.\n\\]\nSince\n\\[\n|x-x_1|+|x_2-x|=h_T,\n\\]\nwe have\n\\[\n|x-x_1|^2+|x_2-x|^2\n\\le\nh_T^2.\n\\]\nTherefore,\n\\[\n\\boxed{\n\\|(u-I_hu)'\\|_{L^\\infty(T)}\n\\le\n\\frac{h_T}{2}\n\\|u''\\|_{L^\\infty(T)}.\n}\n\\]\nHence,\n\\[\n\\boxed{\n(u-I_hu)'=O(h_T).\n}\n\\]\nThe loss of one order has a simple interpretation: differentiating removes one power of the element size,\n\\[\n\\boxed{\nO(h_T^2)\n\\quad\\xrightarrow{\\text{one derivative}}\\quad\nO(h_T).\n}\n\\]\nThus, for \\(P_1\\) interpolation,\n\\[\n\\boxed{\nu-I_hu=O(h_T^2),\n\\qquad\n(u-I_hu)'=O(h_T).\n}\n\\]\nThe first Taylor term that cannot be reproduced by a \\(P_1\\) approximation is the quadratic term, which is controlled by the second derivative \\(u''\\).",
+    "crumbs": [
+      "Session 3 — Analysis of the finite element method"
+    ]
+  },
+  {
+    "objectID": "session3.html#quadratic-elements-p_2",
+    "href": "session3.html#quadratic-elements-p_2",
+    "title": "Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method",
+    "section": "4.2 Quadratic elements: \\(P_2\\)",
+    "text": "4.2 Quadratic elements: \\(P_2\\)\nA quadratic element reproduces exactly all polynomials of degree at most two.\nThe first Taylor term which is not represented is therefore of degree three.\nWithout proof,\n\\[\n\\boxed{\n\\|u-I_hu\\|_{L^\\infty(T)}\n\\le\nC h_T^3\n\\|u^{(3)}\\|_{L^\\infty(T)},\n}\n\\]\nand\n\\[\n\\boxed{\n\\|(u-I_hu)'\\|_{L^\\infty(T)}\n\\le\nC h_T^2\n\\|u^{(3)}\\|_{L^\\infty(T)}.\n}\n\\]\nThus,\n\\[\n\\boxed{\nP_2:\n\\qquad\nu-I_hu=O(h_T^3),\n\\qquad\n(u-I_hu)'=O(h_T^2).\n}\n\\]",
+    "crumbs": [
+      "Session 3 — Analysis of the finite element method"
+    ]
+  },
+  {
+    "objectID": "session3.html#error-in-the-solution-itself-the-l2-norm",
+    "href": "session3.html#error-in-the-solution-itself-the-l2-norm",
+    "title": "Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method",
+    "section": "6.1 Error in the solution itself: the \\(L^2\\) norm",
+    "text": "6.1 Error in the solution itself: the \\(L^2\\) norm\nThe energy estimate controls the error in the gradient:\n\\[\n|u-u_h|_{H^1(\\Omega)}.\n\\]\nA sharper estimate can also be obtained for the error in the solution itself, measured in the \\(L^2\\) norm.\nFor sufficiently regular elliptic problems,\n\\[\n\\boxed{\nP_1:\n\\qquad\n\\|u-u_h\\|_{L^2(\\Omega)}\n\\le\nC h^2 |u|_{H^2(\\Omega)},\n}\n\\]\nand\n\\[\n\\boxed{\nP_2:\n\\qquad\n\\|u-u_h\\|_{L^2(\\Omega)}\n\\le\nC h^3 |u|_{H^3(\\Omega)}.\n}\n\\]\nThus,\n\\[\n\\boxed{\n\\begin{array}{c|cc}\n& H^1\\text{ error} & L^2\\text{ error} \\\\\n\\hline\nP_1 & O(h) & O(h^2) \\\\\nP_2 & O(h^2) & O(h^3)\n\\end{array}\n}\n\\]\nThe \\(L^2\\) error therefore converges one order faster than the \\(H^1\\) error.\nThis improved estimate is obtained through a duality argument (Aubin–Nitsche), which is not developed here.",
+    "crumbs": [
+      "Session 3 — Analysis of the finite element method"
+    ]
+  },
+  {
+    "objectID": "session3.html#conditioning-of-the-stiffness-matrix",
+    "href": "session3.html#conditioning-of-the-stiffness-matrix",
+    "title": "Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method",
+    "section": "10.1 Conditioning of the stiffness matrix",
+    "text": "10.1 Conditioning of the stiffness matrix\nFor the Poisson problem, after application of Dirichlet boundary conditions,\n\\[\nKU=F\n\\]\nhas a symmetric positive-definite stiffness matrix \\(K\\).\nIts spectral condition number is\n\\[\n\\boxed{\n\\kappa_2(K)\n=\n\\frac{\\lambda_{\\max}(K)}\n{\\lambda_{\\min}(K)}.\n}\n\\]\nThe condition number measures how sensitive the algebraic system is to perturbations and numerical errors. It also plays an important role in the convergence of iterative solvers.\nFor fixed-order finite elements on a quasi-uniform, shape-regular family of meshes, the standard scaling for the Poisson stiffness matrix is\n\\[\n\\boxed{\n\\kappa_2(K)\n=\nO(h^{-2}).\n}\n\\]\nThis scaling is essentially independent of the spatial dimension. Therefore,\n\\[\nh\\downarrow\n\\qquad\\Longrightarrow\\qquad\n\\kappa_2(K)\\uparrow.\n\\]\nUsing the relation established above,\n\\[\nN_{\\mathrm{dof}}\n\\sim\nh^{-d},\n\\]\nwe have\n\\[\nh^{-2}\n\\sim\nN_{\\mathrm{dof}}^{2/d},\n\\]\nand therefore\n\\[\n\\boxed{\n\\kappa_2(K)\n=\nO\\left(\nN_{\\mathrm{dof}}^{2/d}\n\\right).\n}\n\\]\nIn particular,\n\\[\n\\boxed{\n\\kappa_2(K)\n\\sim\n\\begin{cases}\nO(N_{\\mathrm{dof}}^2), & d=1,\\\\[1mm]\nO(N_{\\mathrm{dof}}), & d=2,\\\\[1mm]\nO(N_{\\mathrm{dof}}^{2/3}), & d=3.\n\\end{cases}\n}\n\\]\nThus, mesh refinement improves the approximation but simultaneously makes the unpreconditioned algebraic system increasingly ill-conditioned.\nThe \\(h^{-2}\\) scaling assumes a quasi-uniform, shape-regular mesh family. Strongly distorted or highly graded meshes may lead to significantly worse conditioning.",
+    "crumbs": [
+      "Session 3 — Analysis of the finite element method"
+    ]
+  },
+  {
+    "objectID": "session3.html#assemnly-cost",
+    "href": "session3.html#assemnly-cost",
+    "title": "Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method",
+    "section": "11.1 Assemnly cost",
+    "text": "11.1 Assemnly cost\nThe finite-element discretization produces a sparse linear system\n\\[\nKU=F.\n\\]\nFor fixed-order finite elements on a shape-regular mesh, each degree of freedom interacts only with a limited number of neighboring degrees of freedom.\nThe number of non-zero entries in the stiffness matrix therefore scales as\n\\[\n\\boxed{\n\\operatorname{nnz}(K)\n=\nO(N_{\\mathrm{dof}}).\n}\n\\]\nSince each element contributes a fixed-size elemental matrix, the assembly cost also scales approximately as\n\\[\n\\boxed{\nT_{\\mathrm{assembly}}\n=\nO(N_{\\mathrm{dof}}).\n}\n\\]\nThese estimates hold in any spatial dimension for fixed polynomial order.",
+    "crumbs": [
+      "Session 3 — Analysis of the finite element method"
+    ]
+  },
+  {
+    "objectID": "session3.html#dense-versus-sparse-direct-solvers",
+    "href": "session3.html#dense-versus-sparse-direct-solvers",
+    "title": "Session 3 — Accuracy, convergence, and computational cost of the Finite Element Method",
+    "section": "11.2 Dense versus sparse direct solvers",
+    "text": "11.2 Dense versus sparse direct solvers\nIf the stiffness matrix were treated as a dense matrix, a direct factorization would require approximately\n\\[\nO(N_{\\mathrm{dof}}^3)\n\\]\noperations and\n\\[\nO(N_{\\mathrm{dof}}^2)\n\\]\nmemory.\nThis would completely ignore the sparse structure generated by the finite-element method.\nBefore factorization, a fixed-order finite-element stiffness matrix contains only\n\\[\n\\operatorname{nnz}(K)=O(N_{\\mathrm{dof}})\n\\]\nnon-zero entries.\nSparse direct solvers exploit this structure. During factorization, however, additional non-zero entries are created. This phenomenon is called fill-in.\nWith an appropriate ordering of the degrees of freedom (nested dissection), the classical complexity estimates for elliptic problems on regular meshes are approximately\n\n\n\n\n\n\n\n\nSpatial dimension\nFactorization cost\nMemory\n\n\n\n\n1D\n\\(O(N_{\\mathrm{dof}})\\)\n\\(O(N_{\\mathrm{dof}})\\)\n\n\n2D\n\\(O(N_{\\mathrm{dof}}^{3/2})\\)\n\\(O(N_{\\mathrm{dof}}\\log N_{\\mathrm{dof}})\\)\n\n\n3D\n\\(O(N_{\\mathrm{dof}}^2)\\)\n\\(O(N_{\\mathrm{dof}}^{4/3})\\)\n\n\n\nThus, although the original finite-element matrix contains only \\(O(N_{\\mathrm{dof}})\\) non-zero entries, its factors may require substantially more storage because of fill-in.\nThe difference between two and three dimensions can be understood from the geometry of sparse elimination.\nA suitable ordering eliminates interior degrees of freedom first, as part of the factorization of the complete matrix. The remaining degrees of freedom lie on an interface, called a separator. The same idea is applied recursively inside the subdomains.\nIn 2D, the separator is approximately a line. Since\n\\[\nN_{\\mathrm{dof}}\\sim h^{-2},\n\\]\nit contains approximately\n\\[\nO(h^{-1})\n=\nO(N_{\\mathrm{dof}}^{1/2})\n\\]\ndegrees of freedom.\nEliminating the interior creates additional couplings between the separator unknowns, so that the corresponding block becomes essentially dense. Its factorization costs approximately\n\\[\nO\\left((N_{\\mathrm{dof}}^{1/2})^3\\right)\n=\n\\boxed{O(N_{\\mathrm{dof}}^{3/2})}.\n\\]\nIn 3D, the separator is approximately a surface. Since\n\\[\nN_{\\mathrm{dof}}\\sim h^{-3},\n\\]\nit contains approximately\n\\[\nO(h^{-2})\n=\nO(N_{\\mathrm{dof}}^{2/3})\n\\]\ndegrees of freedom. The corresponding factorization cost is therefore\n\\[\nO\\left((N_{\\mathrm{dof}}^{2/3})^3\\right)\n=\n\\boxed{O(N_{\\mathrm{dof}}^2)}.\n\\]\nThe recursive elimination of the subdomains does not change these leading-order estimates.\nThe much faster increase in both computational cost and memory consumption in 3D is one of the main limitations of sparse direct solvers for large finite-element problems.",
+    "crumbs": [
+      "Session 3 — Analysis of the finite element method"
+    ]
+  },
+  {
+    "objectID": "session1.html",
+    "href": "session1.html",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "",
+    "text": "By the end of this session, students should be able to:\n\ndistinguish strong and weak formulations of a diffusion problem;\nderive finite-difference and weak formulations of the model problem;\nformulate a finite-dimensional Galerkin approximation;\nuse a manufactured solution and numerical quadrature to assess a numerical approximation;\ninterpret Galerkin approximation as an orthogonal projection and explain its best-approximation property;\nrelate this optimality property to Céa’s lemma and heterogeneous diffusion;\nmotivate the use of mesh-based finite-element approximation spaces.",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#learning-objectives",
+    "href": "session1.html#learning-objectives",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "",
+    "text": "By the end of this session, students should be able to:\n\ndistinguish strong and weak formulations of a diffusion problem;\nderive finite-difference and weak formulations of the model problem;\nformulate a finite-dimensional Galerkin approximation;\nuse a manufactured solution and numerical quadrature to assess a numerical approximation;\ninterpret Galerkin approximation as an orthogonal projection and explain its best-approximation property;\nrelate this optimality property to Céa’s lemma and heterogeneous diffusion;\nmotivate the use of mesh-based finite-element approximation spaces.",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#schedule",
+    "href": "session1.html#schedule",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "Schedule",
+    "text": "Schedule\n\n\n\nTime\nTopic\n\n\n\n\n0–10 min\nDiffusion equation and model problem\n\n\n10–25 min\nFinite differences\n\n\n25–43 min\nStrong form to weak form\n\n\n43–58 min\nGalerkin approximation, orthogonality, and projection\n\n\n58–73 min\nManufactured solution and numerical quadrature\n\n\n73–78 min\nNon-homogeneous Dirichlet conditions\n\n\n78–85 min\nCéa’s lemma\n\n\n85–90 min\nWhy finite elements?",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#interpretation",
+    "href": "session1.html#interpretation",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "2.1 Interpretation",
+    "text": "2.1 Interpretation\nFinite differences proceed directly from the differential equation:\n\\[\n\\boxed{\n\\text{PDE}\n\\longrightarrow\n\\text{approximation of derivatives at grid points}.\n}\n\\]\nThe unknowns (u_i) approximate point values\n\\[\nu_i \\approx u(x_i).\n\\]",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#the-two-dimensional-stencil",
+    "href": "session1.html#the-two-dimensional-stencil",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "2.2 The two-dimensional stencil",
+    "text": "2.2 The two-dimensional stencil\nOn a Cartesian grid,\n\\[\n-\\Delta u\n=\n-\\frac{\\partial^2u}{\\partial x^2}\n-\n\\frac{\\partial^2u}{\\partial y^2}.\n\\]\nFor a regular square grid with spacing (h),\n\\[\n-\\Delta u_{ij}\n\\approx\n\\frac{\n4u_{ij}\n-u_{i-1,j}\n-u_{i+1,j}\n-u_{i,j-1}\n-u_{i,j+1}\n}{h^2}.\n\\]\nThis corresponds to the classical five-point stencil:\n          -1\n           |\n      -1   4   -1\n           |\n          -1\nThis method is extremely natural on a rectangular domain with a Cartesian grid.",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#finite-difference-example",
+    "href": "session1.html#finite-difference-example",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "2.3 Finite-difference example",
+    "text": "2.3 Finite-difference example\nConsider\n\\[\n-\\Delta u = 1\n\\]\non the unit square\n\\[\n\\Omega=(0,1)^2,\n\\]\nwith homogeneous Dirichlet boundary conditions\n\\[\nu=0\n\\qquad \\text{on } \\partial\\Omega.\n\\]\nWe solve the discrete system numerically using a finite-difference approximation on a Cartesian grid.\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Number of intervals in each direction\nN = 10\nh = 1 / N\n\n# Complete grid, INCLUDING the boundary\nx = np.linspace(0, 1, N+1)\ny = np.linspace(0, 1, N+1)\nX, Y = np.meshgrid(x, y)\n\n# Number of interior points in one direction\nn = N - 1\n\n# 1D finite-difference matrix\nT = (\n    2*np.eye(n)\n    - np.eye(n, k=1)\n    - np.eye(n, k=-1)\n)\n\nI = np.eye(n)\n\n# 2D five-point finite-difference operator\nA = (1 / h**2) * (\n    np.kron(I, T)\n    + np.kron(T, I)\n)\n\n# f = 1 at the interior nodes\nf = np.ones(n*n)\n\n# Solve for interior nodal values\nu = np.linalg.solve(A, f)\n\n# Complete solution, including u = 0 on the boundary\nU = np.zeros((N+1, N+1))\n\nU[1:-1, 1:-1] = u.reshape((n, n))\n\n# Plot the solution\nplt.contourf(X, Y, U, levels=20)\nplt.colorbar(label=\"$u_h$\")\n\n# Plot Cartesian grid\nfor xi in x:\n    plt.plot([xi, xi], [0, 1], linewidth=0.5)\n\nfor yi in y:\n    plt.plot([0, 1], [yi, yi], linewidth=0.5)\n\n# Plot all grid nodes\nplt.plot(X.ravel(), Y.ravel(), \"o\", markersize=2)\n\nplt.xlabel(\"$x$\")\nplt.ylabel(\"$y$\")\nplt.gca().set_aspect(\"equal\")\nplt.show()\n\n\n\n\n\n\n\nFigure 2: Finite-difference solution of \\(-\\Delta u=1\\) on the unit square.\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 3: Sparsity pattern of the finite-difference matrix.\n\n\n\n\n\n\n2.3.1 Question\nWhat happens when:\n\nthe boundary is curved?\nthe geometry contains a hole?\nthe domain is irregular?\nthe mesh is not Cartesian?\n\nThis motivates looking for a formulation that is less tied to direct pointwise approximations of the differential operator.",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#trial-and-test-spaces",
+    "href": "session1.html#trial-and-test-spaces",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "3.1 Trial and test spaces",
+    "text": "3.1 Trial and test spaces\nThe solution must satisfy the prescribed Dirichlet condition. We therefore define\n\\[\nV_g\n=\n\\left\\{\nw\\in H^1(\\Omega):\nw=g\\text{ on }\\Gamma_D\n\\right\\},\n\\]\nwhereas the test functions belong to\n\\[\nV_0\n=\n\\left\\{\nv\\in H^1(\\Omega):\nv=0\\text{ on }\\Gamma_D\n\\right\\}.\n\\]\nDefine\n\\[\na(u,v)\n=\n\\int_\\Omega\nk\\nabla u\\cdot\\nabla v\\,d\\Omega\n\\]\nand\n\\[\n\\ell(v)\n=\n\\int_\\Omega fv\\,d\\Omega\n+\n\\int_{\\Gamma_N}qv\\,d\\Gamma.\n\\]\nThe weak problem is\n\\[\n\\boxed{\n\\text{Find }u\\in V_g\n\\text{ such that }\na(u,v)=\\ell(v)\n\\qquad\n\\forall v\\in V_0.\n}\n\\]\nFor homogeneous Dirichlet conditions, \\(g=0\\) and \\(V_g=V_0\\).",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#why-is-this-useful",
+    "href": "session1.html#why-is-this-useful",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "3.2 Why is this useful?",
+    "text": "3.2 Why is this useful?\nThe strong equation contains second derivatives of \\(u\\), whereas the weak formulation requires only first derivatives through \\(\\nabla u\\).\nThe two types of boundary conditions also enter differently:\n\n\\(u=g\\) on \\(\\Gamma_D\\) is imposed through the trial space;\n\\(k\\nabla u\\cdot\\mathbf n=q\\) on \\(\\Gamma_N\\) appears naturally in the right-hand side.\n\n\nKey point: the weak formulation is not yet a numerical approximation. It is a reformulation of the boundary-value problem.",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#galerkin-orthogonality-and-projection",
+    "href": "session1.html#galerkin-orthogonality-and-projection",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "4.1 Galerkin orthogonality and projection",
+    "text": "4.1 Galerkin orthogonality and projection\nThe exact solution satisfies the weak equation for every \\(v_N\\in V_N\\),\n\\[\na(u,v_N)=\\ell(v_N),\n\\]\nwhile the Galerkin solution satisfies\n\\[\na(u_N,v_N)=\\ell(v_N).\n\\]\nSubtracting gives\n\\[\n\\boxed{\na(u-u_N,v_N)=0\n\\qquad\n\\forall v_N\\in V_N.\n}\n\\]\nThis is Galerkin orthogonality.\nFor the symmetric diffusion problem, \\(a(\\cdot,\\cdot)\\) is an inner product on \\(V_0\\). Its associated energy norm is\n\\[\n\\boxed{\n\\|v\\|_a\n=\n\\sqrt{a(v,v)}\n=\n\\left(\n\\int_\\Omega\nk|\\nabla v|^2\\,d\\Omega\n\\right)^{1/2}.\n}\n\\]\nHence\n\\[\nu-u_N\\perp_a V_N,\n\\]\nso \\(u_N\\) is the orthogonal projection of \\(u\\) onto \\(V_N\\) in the energy inner product.\nFor any \\(v_N\\in V_N\\),\n\\[\nu-v_N=(u-u_N)+(u_N-v_N),\n\\]\nand the two terms on the right are orthogonal. Therefore,\n\\[\n\\|u-v_N\\|_a^2\n=\n\\|u-u_N\\|_a^2\n+\n\\|u_N-v_N\\|_a^2,\n\\]\nwhich gives the exact best-approximation property\n\\[\n\\boxed{\n\\|u-u_N\\|_a\n=\n\\min_{v_N\\in V_N}\n\\|u-v_N\\|_a.\n}\n\\]\n\nKey point: once the space \\(V_N\\) is chosen, Galerkin selects its best approximation to \\(u\\) in the energy norm.",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#a-manufactured-solution",
+    "href": "session1.html#a-manufactured-solution",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "5.1 A manufactured solution",
+    "text": "5.1 A manufactured solution\nTo assess the approximation, we prescribe an exact solution and compute the source term for which it solves the PDE. This is the idea of a manufactured solution.\nLet\n\\[\n\\boxed{\nu_{\\mathrm{ref}}(x,y)\n=\nx(1-x)\\,p(y),\n}\n\\]\nwith\n\\[\np(y)\n=\ny(1-y)\n+\n4y\\left(y-\\frac12\\right)(y-1)\n=\n3y-7y^2+4y^3.\n\\]\nThe cubic perturbation vanishes at \\(y=0\\), \\(y=1/2\\), and \\(y=1\\).\nSince\n\\[\nu_{\\mathrm{ref}}=0\n\\qquad\\text{on }\\partial\\Omega,\n\\]\nwe define\n\\[\nf=-\\Delta u_{\\mathrm{ref}}.\n\\]\nUsing\n\\[\n\\frac{d^2}{dx^2}\\bigl[x(1-x)\\bigr]=-2,\n\\qquad\np''(y)=-14+24y,\n\\]\ngives\n\\[\n\\boxed{\nf(x,y)\n=\n2p(y)\n+\nx(1-x)(14-24y).\n}\n\\]\nWe will now use this manufactured solution to assess the accuracy of Galerkin approximations using up to three global sine modes.",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#numerical-quadrature",
+    "href": "session1.html#numerical-quadrature",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "5.2 Numerical quadrature",
+    "text": "5.2 Numerical quadrature\nThe Galerkin matrix and right-hand side require integrals such as\n\\[\nK_{ij}\n=\n\\int_\\Omega\n\\nabla\\phi_j\\cdot\\nabla\\phi_i\\,d\\Omega,\n\\qquad\nF_i\n=\n\\int_\\Omega\nf\\phi_i\\,d\\Omega.\n\\]\nRather than evaluating them analytically, we approximate them with Gauss–Legendre quadrature. Recall thatI in one dimension, an \\(n_q\\)-point Gauss rule has the form\n\\[\n\\int_0^1 r(x)\\,dx\n\\approx\n\\sum_{a=1}^{n_q} w_a r(x_a)\n\\]\nand integrates exactly every polynomial of degree at most \\(2n_q-1\\).\n\nA one-dimensional Gauss–Legendre quadrature example\nConsider\n\\[\nr(x)=e^x.\n\\]\nFor a three-point Gauss–Legendre rule on \\([0,1]\\),\n\\[\nx_1=\\frac12\\left(1-\\sqrt{\\frac35}\\right),\n\\qquad\nx_2=\\frac12,\n\\qquad\nx_3=\\frac12\\left(1+\\sqrt{\\frac35}\\right),\n\\]\nwith weights\n\\[\nw_1=w_3=\\frac{5}{18},\n\\qquad\nw_2=\\frac49.\n\\]\nThe quadrature approximation is therefore\n\\[\n\\boxed{\n\\int_0^1 e^x\\,dx\n\\approx\n\\sum_{a=1}^3 w_a e^{x_a}.\n}\n\\]\nA useful geometric interpretation is to represent each contribution \\(w_a r(x_a)\\) by a rectangle of width \\(w_a\\) and height \\(r(x_a)\\). This resembles a Riemann sum, but both the widths and the evaluation points are determined by the Gauss rule.\n\n\n\n\n\n\n\n\nFigure 4: Three-point Gauss–Legendre quadrature for \\(r(x)=e^x\\). Each blue rectangle has width \\(w_a\\) and height \\(r(x_a)\\); black vertical lines show the boundaries between the weighted domains.\n\n\n\n\n\n\n\nBack to the 2D quadrature\nOn the unit square, we use the tensor-product rule\n\\[\n\\boxed{\n\\int_\\Omega r(x,y)\\,d\\Omega\n\\approx\n\\sum_{a=1}^{n_q}\n\\sum_{b=1}^{n_q}\nw_aw_b\\,r(x_a,y_b).\n}\n\\]\nHere the integrands contain sine functions, so the rule is not exact. We use \\(n_q=8\\) points in each direction; for this smooth low-frequency example, increasing the order further does not significantly impact the accuracy of the finite element solution.\nThe quadrature points are not uniformly spaced, and neither are their weights. The tensor-product rule associates each point \\((x_a,y_b)\\) with the weight \\(w_a w_b\\):\n\n\n\n\n\n\n\n\nFigure 5: Tensor-product Gauss–Legendre quadrature points on the unit square. Color indicates the quadrature weight \\(w_a w_b\\).\n\n\n\n\n\nThis is our first example of numerical quadrature. In finite elements the same idea will be applied locally, element by element.",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "session1.html#one--and-three-mode-galerkin-approximations",
+    "href": "session1.html#one--and-three-mode-galerkin-approximations",
+    "title": "Session 1 — Galerkin approximations for diffusion problems",
+    "section": "5.3 One- and three-mode Galerkin approximations",
+    "text": "5.3 One- and three-mode Galerkin approximations\nStart with\n\\[\nV_1\n=\n\\operatorname{span}\\{\\phi_{11}\\},\n\\]\nwhere\n\\[\n\\phi_{11}(x,y)=\\sin(\\pi x)\\sin(\\pi y).\n\\]\nThis space can reproduce only one global shape and is therefore quite restrictive for the manufactured solution.\nWe then enrich the space to\n\\[\n\\boxed{\nV_3\n=\n\\operatorname{span}\n\\{\\phi_{11},\\phi_{21},\\phi_{12}\\}.\n}\n\\]\nThe additional function \\(\\phi_{12}\\) introduces a second variation in the \\(y\\) direction, while \\(\\phi_{21}\\) enriches the possible variation in the \\(x\\) direction.\nFor each space, we assemble \\(K\\) and \\(F\\) with the \\(8\\times8\\) Gauss rule and solve the corresponding Galerkin system.\n\n\n\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom numpy.polynomial.legendre import leggauss\n\ndef p(y):\n    return y*(1-y) + 4*y*(y-0.5)*(y-1)\n\ndef dp(y):\n    return 1 - 2*y + 4*(3*y**2 - 3*y + 0.5)\n\ndef u_ref(x, y):\n    return x*(1-x)*p(y)\n\ndef grad_u_ref(x, y):\n    ux = (1-2*x)*p(y)\n    uy = x*(1-x)*dp(y)\n    return ux, uy\n\ndef source(x, y):\n    return 2*p(y) + x*(1-x)*(14-24*y)\n\ndef phi(m, n, x, y):\n    return np.sin(m*np.pi*x)*np.sin(n*np.pi*y)\n\ndef grad_phi(m, n, x, y):\n    phix = m*np.pi*np.cos(m*np.pi*x)*np.sin(n*np.pi*y)\n    phiy = n*np.pi*np.sin(m*np.pi*x)*np.cos(n*np.pi*y)\n    return phix, phiy\n\ndef quadrature(nq):\n    xi, wi = leggauss(nq)\n    xq = 0.5*(xi+1.0)\n    wq = 0.5*wi\n    Xq, Yq = np.meshgrid(xq, xq, indexing=\"ij\")\n    Wq = np.outer(wq, wq)\n    return Xq, Yq, Wq\n\ndef assemble(modes, nq=8):\n    Xq, Yq, Wq = quadrature(nq)\n    n = len(modes)\n    K = np.zeros((n, n))\n    F = np.zeros(n)\n\n    for i, (mi, ni) in enumerate(modes):\n        phii = phi(mi, ni, Xq, Yq)\n        gix, giy = grad_phi(mi, ni, Xq, Yq)\n        F[i] = np.sum(Wq * source(Xq, Yq) * phii)\n\n        for j, (mj, nj) in enumerate(modes):\n            gjx, gjy = grad_phi(mj, nj, Xq, Yq)\n            K[i, j] = np.sum(Wq * (gix*gjx + giy*gjy))\n\n    return K, F\n\ndef evaluate_solution(modes, coeffs, X, Y):\n    U = np.zeros_like(X)\n    for c, (m, n) in zip(coeffs, modes):\n        U += c*phi(m, n, X, Y)\n    return U\n\ndef relative_errors(modes, coeffs, nq=30):\n    Xq, Yq, Wq = quadrature(nq)\n\n    Ue = u_ref(Xq, Yq)\n    Ux_e, Uy_e = grad_u_ref(Xq, Yq)\n\n    Uh = np.zeros_like(Xq)\n    Ux_h = np.zeros_like(Xq)\n    Uy_h = np.zeros_like(Xq)\n\n    for c, (m, n) in zip(coeffs, modes):\n        Uh += c*phi(m, n, Xq, Yq)\n        gx, gy = grad_phi(m, n, Xq, Yq)\n        Ux_h += c*gx\n        Uy_h += c*gy\n\n    l2_num = np.sum(Wq*(Ue-Uh)**2)\n    l2_den = np.sum(Wq*Ue**2)\n\n    en_num = np.sum(Wq*((Ux_e-Ux_h)**2 + (Uy_e-Uy_h)**2))\n    en_den = np.sum(Wq*(Ux_e**2 + Uy_e**2))\n\n    return np.sqrt(l2_num/l2_den), np.sqrt(en_num/en_den)\n\nmodes_1 = [(1, 1)]\nmodes_3 = [(1, 1), (2, 1), (1, 2)]\n\nK1, F1 = assemble(modes_1, nq=8)\nU1_coeff = np.linalg.solve(K1, F1)\n\nK3, F3 = assemble(modes_3, nq=8)\nU3_coeff = np.linalg.solve(K3, F3)\n\nerr_l2_1, err_a_1 = relative_errors(modes_1, U1_coeff)\nerr_l2_3, err_a_3 = relative_errors(modes_3, U3_coeff)\n\nmodes_1 = [(1, 1)]\nmodes_3 = [(1, 1), (2, 1), (1, 2)]\n\nK1, F1 = assemble(modes_1, nq=8)\nU1_coeff = np.linalg.solve(K1, F1)\n\nK3, F3 = assemble(modes_3, nq=8)\nU3_coeff = np.linalg.solve(K3, F3)\n\n\nFigure 6\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nOne-mode approximation\n\nK =\n[[4.9348]]\n\nF =\n[0.32851]\n\nU =\n[0.06657]\n\nThree-mode approximation\n\nK =\n[[ 4.9348   0.       0.     ]\n [ 0.      12.33698  0.     ]\n [ 0.       0.      12.33698]]\n\nF =\n[0.32851 0.      0.61596]\n\nU =\n[0.06657 0.      0.04993]\n\nRelative errors\nV1: L2 = 0.605, energy = 0.777\nV3: L2 = 0.092, energy = 0.218\n\n\nThe one-mode space captures only the dominant smooth component. The three-mode space is much more accurate because it contains a basis function with the appropriate additional variation in \\(y\\).\nFor this particular manufactured solution, symmetry in \\(x\\) makes the coefficient of \\(\\phi_{21}\\) essentially zero: adding an admissible direction does not mean that Galerkin has to use it.\nThis example illustrates the best-approximation result derived above: enriching the approximation space cannot increase the minimum energy error.",
+    "crumbs": [
+      "Session 1 — The Galerkin method for diffusion problems"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Introduction to the Finite Element Method",
+    "section": "",
+    "text": "This short course introduces the finite element method through the Poisson equation, starting from the weak formulation and Galerkin approximation and progressively showing how a mesh is used to construct the approximation space.",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#domain-and-mesh",
+    "href": "index.html#domain-and-mesh",
+    "title": "Introduction to the Finite Element Method",
+    "section": "2.1 Domain and mesh",
+    "text": "2.1 Domain and mesh\nThe computational domain is denoted by\n\\[\n\\Omega.\n\\]\nIts finite-element mesh is\n\\[\n\\mathcal T_h,\n\\]\nwhere \\(h\\) denotes the characteristic mesh size.\nA generic finite element is denoted by\n\\[\nT\\in\\mathcal T_h.\n\\]\nFor triangular meshes,\n\\[\nh_T=\\operatorname{diam}(T),\n\\qquad\nh=\\max_{T\\in\\mathcal T_h}h_T.\n\\]",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#function-spaces",
+    "href": "index.html#function-spaces",
+    "title": "Introduction to the Finite Element Method",
+    "section": "2.2 Function spaces",
+    "text": "2.2 Function spaces\nThe space of admissible functions satisfying the prescribed Dirichlet values \\(g\\) is denoted by\n\\[\nV_g\n=\n\\left\\{\nv\\in H^1(\\Omega):\nv=g\n\\text{ on }\\Gamma_D\n\\right\\}.\n\\]\nThe corresponding homogeneous space is\n\\[\nV_0\n=\n\\left\\{\nv\\in H^1(\\Omega):\nv=0\n\\text{ on }\\Gamma_D\n\\right\\}.\n\\]\nTheir finite-element counterparts are denoted by\n\\[\nV_{h,g}\\subset V_g,\n\\qquad\nV_{h,0}\\subset V_0.\n\\]\nThe finite-element solution and test functions therefore satisfy\n\\[\nu_h\\in V_{h,g},\n\\qquad\nv_h\\in V_{h,0}.\n\\]",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#global-and-local-basis-functions",
+    "href": "index.html#global-and-local-basis-functions",
+    "title": "Introduction to the Finite Element Method",
+    "section": "2.3 Global and local basis functions",
+    "text": "2.3 Global and local basis functions\nGlobal finite-element basis functions are denoted by\n\\[\n\\phi_i,\n\\]\nwhere \\(i,j,\\ldots\\) are global degree-of-freedom indices.\nThe global finite-element approximation is written as\n\\[\nu_h\n=\n\\sum_i U_i\\phi_i.\n\\]\nOn one element \\(T\\), local shape functions are denoted by\n\\[\nN_a,\n\\]\nwhere \\(a,b,\\ldots\\) are local element indices.\nFor a \\(P_1\\) triangular element,\n\\[\na,b\\in\\{1,2,3\\}.\n\\]\nIf the local nodes \\(a=1,2,3\\) correspond to the global degrees of freedom\n\\[\ni_1,\\ i_2,\\ i_3,\n\\]\nthen\n\\[\nu_h|_T\n=\n\\sum_{a=1}^3\nU_{i_a}N_a.\n\\]",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#element-and-global-matrices",
+    "href": "index.html#element-and-global-matrices",
+    "title": "Introduction to the Finite Element Method",
+    "section": "2.4 Element and global matrices",
+    "text": "2.4 Element and global matrices\nElement quantities are identified by the superscript \\((T)\\).\nThe elemental stiffness matrix is\n\\[\nK^{(T)}_{ab}\n=\n\\int_T\n\\nabla N_a\\cdot\\nabla N_b\\,d\\Omega.\n\\]\nThe elemental load vector is\n\\[\nF^{(T)}_a\n=\n\\int_T\nfN_a\\,d\\Omega\n\\]\nwith additional boundary contributions when non-zero Neumann conditions are present.\nGlobal quantities use global indices:\n\\[\nK_{ij}\n=\n\\int_\\Omega\n\\nabla\\phi_i\\cdot\\nabla\\phi_j\\,d\\Omega,\n\\]\nand\n\\[\nF_i.\n\\]\nAssembly is expressed as\n\\[\n\\boxed{\nK_{i_a i_b}\n\\; += \\;\nK^{(T)}_{ab}\n}\n\\]\nand\n\\[\n\\boxed{\nF_{i_a}\n\\; += \\;\nF^{(T)}_a.\n}\n\\]",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#algebraic-unknowns-and-dirichlet-conditions",
+    "href": "index.html#algebraic-unknowns-and-dirichlet-conditions",
+    "title": "Introduction to the Finite Element Method",
+    "section": "2.5 Algebraic unknowns and Dirichlet conditions",
+    "text": "2.5 Algebraic unknowns and Dirichlet conditions\nThe vector of all nodal values is denoted by\n\\[\nU.\n\\]\nDegrees of freedom are separated into free and prescribed Dirichlet values:\n\\[\nU_f,\n\\qquad\nU_D.\n\\]\nAfter assembly, the corresponding block decomposition of the global matrix is\n\\[\n\\begin{pmatrix}\nK_{ff} & K_{fD}\\\\\nK_{Df} & K_{DD}\n\\end{pmatrix}.\n\\]\nThe equations associated with the free degrees of freedom are\n\\[\n\\boxed{\nK_{ff}U_f\n=\nF_f-K_{fD}U_D.\n}\n\\]",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#weak-formulation",
+    "href": "index.html#weak-formulation",
+    "title": "Introduction to the Finite Element Method",
+    "section": "2.6 Weak formulation",
+    "text": "2.6 Weak formulation\nFor the Poisson problem, the bilinear form is\n\\[\na(u,v)\n=\n\\int_\\Omega\n\\nabla u\\cdot\\nabla v\\,d\\Omega,\n\\]\nand the linear form is denoted by\n\\[\n\\ell(v).\n\\]\nThe discrete Galerkin problem is\n\\[\n\\boxed{\n\\text{Find }u_h\\in V_{h,g}\n\\text{ such that }\na(u_h,v_h)=\\ell(v_h)\n\\quad\n\\forall v_h\\in V_{h,0}.\n}\n\\]",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#interpolation-and-error",
+    "href": "index.html#interpolation-and-error",
+    "title": "Introduction to the Finite Element Method",
+    "section": "2.7 Interpolation and error",
+    "text": "2.7 Interpolation and error\nThe nodal finite-element interpolant of a function \\(u\\) is denoted by\n\\[\nI_hu.\n\\]\nIt is defined by\n\\[\nI_hu(\\mathbf x_i)\n=\nu(\\mathbf x_i).\n\\]\nThe \\(L^2\\) norm is\n\\[\n\\|v\\|_{L^2(\\Omega)}\n=\n\\left(\n\\int_\\Omega v^2\\,d\\Omega\n\\right)^{1/2},\n\\]\nand the \\(H^1\\) seminorm is\n\\[\n|v|_{H^1(\\Omega)}\n=\n\\left(\n\\int_\\Omega\n|\\nabla v|^2\\,d\\Omega\n\\right)^{1/2}.\n\\]\nFor the Poisson problem, this is also the energy norm:\n\\[\n\\|v\\|_a\n=\n|v|_{H^1(\\Omega)}.\n\\]",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "session2.html",
+    "href": "session2.html",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "",
+    "text": "By the end of this session, students should be able to:\n\nexplain how a mesh is used to construct a finite-element approximation space;\nconstruct and interpret \\(P_1\\) and \\(P_2\\) triangular finite elements;\nderive element contributions and explain their assembly into the global system;\nrelate local support of finite-element basis functions to matrix sparsity;\nimpose Dirichlet boundary conditions in the discrete problem;\nuse reference elements, mappings, and numerical quadrature to compute element matrices;\nexplain how isoparametric elements can represent curved geometries.",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#learning-objectives",
+    "href": "session2.html#learning-objectives",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "",
+    "text": "By the end of this session, students should be able to:\n\nexplain how a mesh is used to construct a finite-element approximation space;\nconstruct and interpret \\(P_1\\) and \\(P_2\\) triangular finite elements;\nderive element contributions and explain their assembly into the global system;\nrelate local support of finite-element basis functions to matrix sparsity;\nimpose Dirichlet boundary conditions in the discrete problem;\nuse reference elements, mappings, and numerical quadrature to compute element matrices;\nexplain how isoparametric elements can represent curved geometries.",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#schedule",
+    "href": "session2.html#schedule",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "Schedule",
+    "text": "Schedule\n\n\n\nTime\nTopic\n\n\n\n\n0–10 min\nFinite-element meshes\n\n\n10–25 min\n\\(P_1\\) elements and shape functions\n\n\n25–45 min\nElement contributions and assembly\n\n\n45–55 min\nLocal support, sparsity, and boundary conditions\n\n\n55–65 min\nQuadratic \\(P_2\\) elements\n\n\n65–80 min\nReference elements and isoparametric mappings\n\n\n80–88 min\nNumerical quadrature\n\n\n88–90 min\nFinite-element algorithm and summary",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#shape-functions-on-one-physical-triangle",
+    "href": "session2.html#shape-functions-on-one-physical-triangle",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "2.1 Shape functions on one physical triangle",
+    "text": "2.1 Shape functions on one physical triangle\nConsider one physical triangle\n\\[\nT\n=\n\\operatorname{conv}\n\\{\\mathbf x_1,\\mathbf x_2,\\mathbf x_3\\},\n\\]\nwith\n\\[\n\\mathbf x_a=(x_a,y_a),\n\\qquad a=1,2,3.\n\\]\nThe local \\(P_1\\) shape functions are affine,\n\\[\nN_a(x,y)=\\alpha_a+\\beta_a x+\\gamma_a y,\n\\]\nand satisfy the nodal conditions\n\\[\n\\boxed{\nN_a(\\mathbf x_b)=\\delta_{ab},\n\\qquad a,b=1,2,3.\n}\n\\]\nFor example,\n\\[\nN_1(\\mathbf x_1)=1,\n\\qquad\nN_1(\\mathbf x_2)=N_1(\\mathbf x_3)=0.\n\\]\nConsequently, a \\(P_1\\) function on \\(T\\) is completely determined by its values at the three vertices. These nodal values are the degrees of freedom of the element.\nIf the three vertices of \\(T\\) correspond to degrees of freedom \\(i_1,i_2,i_3\\), then\n\\[\n\\boxed{\nu_h|_T(x,y)\n=\n\\sum_{a=1}^{3}U_{i_a}N_a(x,y).\n}\n\\]\nThe coefficients of \\(N_a\\) can be obtained from\n\\[\n\\begin{pmatrix}\n1 & x_1 & y_1\\\\\n1 & x_2 & y_2\\\\\n1 & x_3 & y_3\n\\end{pmatrix}\n\\begin{pmatrix}\n\\alpha_a\\\\\n\\beta_a\\\\\n\\gamma_a\n\\end{pmatrix}\n=\n\\mathbf e_a.\n\\]\nBecause the shape functions are affine,\n\\[\n\\boxed{\n\\nabla N_a\n=\n\\begin{pmatrix}\n\\beta_a\\\\\n\\gamma_a\n\\end{pmatrix}\n}\n\\]\nis constant over the triangle.",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#global-basis-functions-with-local-support",
+    "href": "session2.html#global-basis-functions-with-local-support",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "2.2 Global basis functions with local support",
+    "text": "2.2 Global basis functions with local support\nA global nodal basis function \\(\\phi_i\\) is obtained by joining the local shape functions associated with degree of freedom \\(i\\) over the neighboring elements.\nFor \\(P_1\\) elements,\n\\[\n\\phi_i(\\mathbf x_j)=\\delta_{ij},\n\\]\nand the finite-element solution can be written as\n\\[\n\\boxed{\nu_h\n=\n\\sum_{i=1}^{N_{\\mathrm{dof}}} U_i \\phi_i,\n\\qquad\nU_i=u_h(\\mathbf x_i).\n}\n\\]\nBecause each basis function is nonzero only on the elements sharing node \\(i\\), its support is the corresponding patch of triangles:\n\\[\n\\boxed{\n\\operatorname{supp}\\phi_i\n=\n\\bigcup\n\\left\\{\nT\\in\\mathcal T_h:\n\\mathbf x_i\\in T\n\\right\\}.\n}\n\\]\nThe following figure shows the global nodal basis functions associated with an interior node and a boundary node. The triangles belonging to the support are highlighted, and the selected node is marked both on the mesh plane and at the top of the basis function.",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#local-contributions-on-one-element",
+    "href": "session2.html#local-contributions-on-one-element",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "3.1 Local contributions on one element",
+    "text": "3.1 Local contributions on one element\nConsider one element \\(T\\), with local degrees of freedom\n\\[a=1, \\ldots ,n_{\\mathrm{loc}}\\]\nand let \\(i_a\\) denote the global degree of freedom associated with local degree of freedom \\(a\\).\nOn the element \\(T\\), the corresponding global basis function is simply the local shape function:\n\\[\n\\boxed{\n\\phi_{i_a}|_T=N_a.\n}\n\\]\nTherefore, if global degrees of freedom \\(i_a\\) and \\(i_b\\) belong to element \\(T\\),\n\\[\n\\int_T\n\\nabla\\phi_{i_a}\\cdot\\nabla\\phi_{i_b}\n\\,d\\Omega\n=\n\\int_T\n\\nabla N_a\\cdot\\nabla N_b\n\\,d\\Omega.\n\\]\nThis motivates the definition of the elemental stiffness matrix\n\\[\n\\boxed{\nK^{(T)}_{ab}\n=\n\\int_T\n\\nabla N_a\\cdot\\nabla N_b\n\\,d\\Omega,\n\\qquad\na,b=1,\\ldots,n_{\\mathrm{loc}},\n}\n\\]\nwhere \\(n_{\\mathrm{loc}}\\) is the number of degrees of freedom of the element. Thus,\n\\[\nK^{(T)}\\in\\mathbb R^{n_{\\mathrm{loc}}\\times n_{\\mathrm{loc}}}.\n\\]\nLikewise, the elemental load vector is\n\\[\n\\boxed{\nF^{(T)}_a\n=\n\\int_T\nfN_a\n\\,d\\Omega,\n\\qquad\na=1,\\ldots,n_{\\mathrm{loc}},\n}\n\\]\nwith\n\\[\nF^{(T)}\\in\\mathbb R^{n_{\\mathrm{loc}}}.\n\\]",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#particular-case-a-p_1-triangle",
+    "href": "session2.html#particular-case-a-p_1-triangle",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "3.2 Particular case: a \\(P_1\\) triangle",
+    "text": "3.2 Particular case: a \\(P_1\\) triangle\nFor a \\(P_1\\) triangle,\n\\[\nn_{\\mathrm{loc}}=3,\n\\]\nso \\(K^{(T)}\\) is a \\(3\\times3\\) matrix and \\(F^{(T)}\\) has three entries.\nThe local shape functions are affine, so their gradients are constant on the element:\n\\[\n\\nabla N_a\n=\n\\text{constant on }T.\n\\]\nHence,\n\\[\n\\boxed{\nK^{(T)}_{ab}\n=\n|T|\\,\n\\nabla N_a\\cdot\\nabla N_b.\n}\n\\]\nFor a constant source term \\(f\\),\n\\[\nF^{(T)}_a\n=\nf\\int_T N_a\\,d\\Omega.\n\\]\nSince\n\\[\n\\int_T N_a\\,d\\Omega\n=\n\\frac{|T|}{3},\n\\]\nwe obtain\n\\[\n\\boxed{\nF^{(T)}\n=\n\\frac{f|T|}{3}\n\\begin{pmatrix}\n1\\\\\n1\\\\\n1\n\\end{pmatrix}.\n}\n\\]",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#homogeneous-dirichlet-conditions",
+    "href": "session2.html#homogeneous-dirichlet-conditions",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "6.1 Homogeneous Dirichlet conditions",
+    "text": "6.1 Homogeneous Dirichlet conditions\nFor\n\\[\nu=0\n\\qquad\n\\text{on }\\Gamma_D,\n\\]\nthe corresponding nodal degrees of freedom are prescribed:\n\\[\n\\boxed{\nU_i=0\n\\qquad\n\\text{for all Dirichlet degrees of freedom }i.\n}\n\\]\nThis can be implemented by eliminating the corresponding rows and columns of the global system.",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#non-homogeneous-dirichlet-conditions",
+    "href": "session2.html#non-homogeneous-dirichlet-conditions",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "6.2 Non-homogeneous Dirichlet conditions",
+    "text": "6.2 Non-homogeneous Dirichlet conditions\nFor\n\\[\nu=g\n\\qquad\n\\text{on }\\Gamma_D,\n\\]\nthe degrees of freedom associated with \\(\\Gamma_D\\) are prescribed by the boundary data. For nodal finite elements,\n\\[\nU_i=g(\\mathbf x_i)\n\\qquad\n\\text{for every node }\\mathbf x_i\\in\\Gamma_D.\n\\]\nSplit the vector of degrees of freedom into\n\n\\(U_f\\): unknown, or free, degrees of freedom;\n\\(U_D\\): prescribed Dirichlet degrees of freedom.\n\nAfter grouping the corresponding rows and columns,\n\\[\n\\begin{pmatrix}\nK_{ff} & K_{fD}\\\\\nK_{Df} & K_{DD}\n\\end{pmatrix}\n\\begin{pmatrix}\nU_f\\\\\nU_D\n\\end{pmatrix}\n=\n\\begin{pmatrix}\nF_f\\\\\nF_D\n\\end{pmatrix}.\n\\]\nSince \\(U_D\\) is known from the prescribed boundary values, the equations associated with the free degrees of freedom become\n\\[\n\\boxed{\nK_{ff}U_f\n=\nF_f-K_{fD}U_D.\n}\n\\]\nAfter solving this reduced system, the complete vector \\(U\\) is reconstructed by combining the computed values \\(U_f\\) with the prescribed values \\(U_D\\).\nThis is the discrete counterpart of the Dirichlet lifting introduced in Session 1.",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#p_1-and-p_2-on-the-reference-triangle",
+    "href": "session2.html#p_1-and-p_2-on-the-reference-triangle",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "9.1 \\(P_1\\) and \\(P_2\\) on the reference triangle",
+    "text": "9.1 \\(P_1\\) and \\(P_2\\) on the reference triangle\nDefine the reference triangle\n\\[\n\\widehat T\n=\n\\left\\{\n(\\xi,\\eta):\n\\xi\\ge0,\n\\;\\eta\\ge0,\n\\;\\xi+\\eta\\le1\n\\right\\}.\n\\]\nIts vertices are\n\\[\n(0,0),\n\\qquad\n(1,0),\n\\qquad\n(0,1).\n\\]\n\n\n\n\n\n\n\n\nFigure 4: Reference triangle \\(\\widehat{T}\\) in the \\((\\xi,\\eta)\\) coordinate system.\n\n\n\n\n\nFor \\(P_1\\), the shape functions on the reference triangle are\n\\[\n\\widehat N_1=1-\\xi-\\eta,\n\\qquad\n\\widehat N_2=\\xi,\n\\qquad\n\\widehat N_3=\\eta.\n\\]\nFor \\(P_2\\), introduce the barycentric coordinates\n\\[\n\\lambda_1=1-\\xi-\\eta,\n\\qquad\n\\lambda_2=\\xi,\n\\qquad\n\\lambda_3=\\eta.\n\\]\nThen, the six quadratic shape functions are defined as\n\\[\n\\begin{aligned}\n\\widehat N_1 &= \\lambda_1(2\\lambda_1-1),\n&\\qquad\n\\widehat N_2 &= \\lambda_2(2\\lambda_2-1),\n&\\qquad\n\\widehat N_3 &= \\lambda_3(2\\lambda_3-1),\\\\\n\\widehat N_4 &= 4\\lambda_1\\lambda_2,\n&\n\\widehat N_5 &= 4\\lambda_2\\lambda_3,\n&\n\\widehat N_6 &= 4\\lambda_3\\lambda_1.\n\\end{aligned}\n\\]\nThe first three functions are associated with the vertices and the last three with the edge midpoints.",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#isoparametric-mapping-to-a-physical-element",
+    "href": "session2.html#isoparametric-mapping-to-a-physical-element",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "9.2 Isoparametric mapping to a physical element",
+    "text": "9.2 Isoparametric mapping to a physical element\nA mapping from the reference triangle to a physical element is obtained by interpolating the geometry with the element shape functions.\nIf local node \\(a\\) corresponds to node \\(i_a\\) in the mesh, then\n\\[\n\\boxed{\n\\mathbf x(\\xi,\\eta)\n=\n\\sum_{a=1}^{n_{\\mathrm{loc}}}\n\\mathbf x_{i_a}\\widehat N_a(\\xi,\\eta).\n}\n\\]\nThe finite-element field on the same element is\n\\[\n\\boxed{\nu_h(\\mathbf x(\\xi,\\eta))\n=\n\\sum_{a=1}^{n_{\\mathrm{loc}}}\nU_{i_a}\\widehat N_a(\\xi,\\eta).\n}\n\\]\nWhen the same shape functions are used to interpolate the geometry and the finite-element field, the element is called isoparametric.\n\n9.2.1 \\(P_1\\): the affine case\nFor a \\(P_1\\) triangle,\n\\[\n\\boxed{\n\\mathbf x(\\xi,\\eta)\n=\n\\sum_{a=1}^{3}\n\\mathbf x_{i_a}\\widehat N_a(\\xi,\\eta).\n}\n\\]\nUsing\n\\[\n\\widehat N_1=1-\\xi-\\eta,\n\\qquad\n\\widehat N_2=\\xi,\n\\qquad\n\\widehat N_3=\\eta,\n\\]\ngives\n\\[\n\\boxed{\n\\mathbf x(\\xi,\\eta)\n=\n\\mathbf x_{i_1}\n+\n\\xi(\\mathbf x_{i_2}-\\mathbf x_{i_1})\n+\n\\eta(\\mathbf x_{i_3}-\\mathbf x_{i_1}).\n}\n\\]\nThis is the affine mapping corresponding to the straight-sided \\(P_1\\) triangles introduced earlier.\n\n\n9.2.2 \\(P_2\\): straight and curved geometry\nFor a \\(P_2\\) triangle,\n\\[\n\\boxed{\n\\mathbf x(\\xi,\\eta)\n=\n\\sum_{a=1}^{6}\n\\mathbf x_{i_a}\\widehat N_a(\\xi,\\eta).\n}\n\\]\nIf the three edge nodes are exactly at the midpoints of straight edges, this quadratic representation reproduces the affine triangle. If an edge node is moved to follow a curved boundary, the mapping becomes genuinely quadratic and the physical edge can be curved.\n\n\n\n\n\n\n\n\nFigure 5: A \\(P_2\\) reference triangle can be mapped either to a straight-sided triangle or to a curved isoparametric element. Moving an edge node allows the geometry to follow a curved boundary.\n\n\n\n\n\nThus the same reference element can be used for both straight and curved physical elements.",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  },
+  {
+    "objectID": "session2.html#jacobian-and-transformation-of-gradients",
+    "href": "session2.html#jacobian-and-transformation-of-gradients",
+    "title": "Session 2 — Construction of the finite element method",
+    "section": "9.3 Jacobian and transformation of gradients",
+    "text": "9.3 Jacobian and transformation of gradients\nThe Jacobian of the mapping is\n\\[\nJ\n=\n\\frac{\\partial(x,y)}{\\partial(\\xi,\\eta)}\n=\n\\begin{pmatrix}\n\\dfrac{\\partial x}{\\partial\\xi} & \\dfrac{\\partial x}{\\partial\\eta}\\\\[2mm]\n\\dfrac{\\partial y}{\\partial\\xi} & \\dfrac{\\partial y}{\\partial\\eta}\n\\end{pmatrix}.\n\\]\nThe area element transforms as\n\\[\n\\boxed{\nd\\Omega\n=\n|\\det J|\\,d\\xi\\,d\\eta.\n}\n\\]\nIf\n\\[\nN_a(\\mathbf x(\\xi,\\eta))\n=\n\\widehat N_a(\\xi,\\eta),\n\\]\nthe chain rule gives\n\\[\n\\nabla_{\\xi}\\widehat N_a\n=\nJ^T\\nabla_xN_a.\n\\]\nTherefore,\n\\[\n\\boxed{\n\\nabla_xN_a\n=\nJ^{-T}\\nabla_{\\xi}\\widehat N_a.\n}\n\\]\nFor an affine \\(P_1\\) triangle,\n\\[\nJ\n=\n\\begin{pmatrix}\nx_{i_2}-x_{i_1} & x_{i_3}-x_{i_1}\\\\\ny_{i_2}-y_{i_1} & y_{i_3}-y_{i_1}\n\\end{pmatrix}\n\\]\nis constant over the element.\nFor a curved isoparametric element,\n\\[\n\\boxed{\nJ=J(\\xi,\\eta),\n}\n\\]\nso, unlike the affine \\(P_1\\) case, \\(J\\), \\(|\\det J|\\), and \\(J^{-T}\\) are no longer constant over the element and integrals must be performed with a sufficiently high order of numerical integration. This issue goes beyond the scope of this introductory course.",
+    "crumbs": [
+      "Session 2 — The finite element method"
+    ]
+  }
+]
